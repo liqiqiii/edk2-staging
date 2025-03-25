@@ -271,14 +271,14 @@ DEFINE CRYPT_LIB = OPENSSL
   }
   DeviceSecurityTestPkg/Test/SpdmPciDoeStub/SpdmPciDoeStub.inf
 
-  #DeviceSecurityTestPkg/SpdmDeviceSecurityPei/SpdmDeviceSecurityPei.inf
-  #DeviceSecurityTestPkg/TestPei/DeviceSecurityPolicyStubPei/DeviceSecurityPolicyStubPei.inf
-  #DeviceSecurityTestPkg/TestPei/PciIoStubPei/PciIoStubPei.inf
-  #DeviceSecurityTestPkg/TestPei/SpdmStubPei/SpdmStubPei.inf {
-  #<LibraryClasses>
-  #  SpdmDeviceSecretLib|DeviceSecurityTestPkg/TestPei/SpdmDeviceSecretLibTestStubPei/SpdmDeviceSecretLibTestStubPei.inf
-  #}
-  #DeviceSecurityTestPkg/TestPei/TestSpdmPei/TestSpdmPei.inf
+  # DeviceSecurityTestPkg/SpdmDeviceSecurityPei/SpdmDeviceSecurityPei.inf
+  # DeviceSecurityTestPkg/TestPei/DeviceSecurityPolicyStubPei/DeviceSecurityPolicyStubPei.inf
+  # DeviceSecurityTestPkg/TestPei/PciIoStubPei/PciIoStubPei.inf
+  # # DeviceSecurityTestPkg/TestPei/SpdmStubPei/SpdmStubPei.inf #{
+  # # <LibraryClasses>
+  # #  SpdmDeviceSecretLib|DeviceSecurityTestPkg/TestPei/SpdmDeviceSecretLibTestStubPei/SpdmDeviceSecretLibTestStubPei.inf
+  # # }
+  # DeviceSecurityTestPkg/TestPei/TestSpdmPei/TestSpdmPei.inf
 
 !if $(CRYPT_LIB) == MBEDTLS
   CryptoMbedTlsPkg/Test/Cryptest/Cryptest.inf

@@ -284,6 +284,7 @@ PciIoStubConfigRead (
     }
   } else {
     CopyMem (Buffer, mPciDeviceBuffer + Offset, Size * Count);
+    // DEBUG ((DEBUG_ERROR, "we got here. the buffer difference in config matters\n"));
   }
 
   return EFI_SUCCESS;
@@ -925,8 +926,6 @@ MainEntryPoint (
                   &mPciIoHandle,
                   &gEdkiiDeviceIdentifierTypePciGuid,
                   &mPciIoStubInterface,
-                  &gEfiDevicePathProtocolGuid,
-                  (EFI_DEVICE_PATH_PROTOCOL *)&mTestPciDevicePath,
                   NULL
                   );
   DEBUG ((DEBUG_ERROR, "[PciIoPciDoeStub] InstallProtocolInterface (DeviceIdTypePci & DevicePath) - %r\n", Status));

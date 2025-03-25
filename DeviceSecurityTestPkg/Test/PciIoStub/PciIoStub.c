@@ -697,8 +697,6 @@ MainEntryPoint (
                   &mPciIoHandle,
                   &gEdkiiDeviceIdentifierTypePciGuid,
                   &mPciIoStubInterface,
-                  &gEfiDevicePathProtocolGuid,
-                  &mTestPciDevicePath,
                   NULL
                   );
 

@@ -11,6 +11,7 @@
 
 #include <Base.h>
 #include <industry_standard/spdm.h>
+#include <Stub/SpdmLibStub.h>
 
 typedef struct _SPDM_PPI SPDM_PPI;
 

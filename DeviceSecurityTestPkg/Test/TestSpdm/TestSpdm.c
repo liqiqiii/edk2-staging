@@ -274,14 +274,16 @@ TestSpdm (
                   &TestConfig
                   );
   if (EFI_ERROR (Status)) {
+        DEBUG ((DEBUG_INFO, "it's wrong for here290: "));
     return;
   }
 
   if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_10) {
+        DEBUG ((DEBUG_INFO, "it's wrong for here295: "));
     //SPDM 1.0 does not support KEY_EXCHANGE or PSK_EXCHANGE, so skip.
     return;
   }
-
+    DEBUG ((DEBUG_INFO, "it's wrong for here299: "));
   Status = gBS->LocateProtocol (&gSpdmProtocolGuid, NULL, (VOID **)&SpdmProtocol);
   ASSERT_EFI_ERROR (Status);
 
@@ -338,6 +340,7 @@ MainEntryPoint (
   TestPci ();
 
 #if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP) || (LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
+    DEBUG ((DEBUG_ERROR, "StopSession -\n"));
   TestSpdm ();
 #endif
   return EFI_SUCCESS;

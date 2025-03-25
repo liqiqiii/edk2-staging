@@ -20,6 +20,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 #include <Guid/DeviceAuthentication.h>
 #include <Guid/ImageAuthentication.h>
 #include <Ppi/ReadOnlyVariable2.h>
+#include <Stub/SpdmLibStub.h>
 
 #define MEASUREMENT_BLOCK_NUMBER   5
 #define MEASUREMENT_MANIFEST_SIZE  128

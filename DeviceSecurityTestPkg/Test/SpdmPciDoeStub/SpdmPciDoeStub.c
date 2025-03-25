@@ -95,6 +95,7 @@ LocatePcieDoeCapStructure (
   //
   ExtendedCapPtr = EFI_PCIE_CAPABILITY_BASE_OFFSET;
 
+  // so this should work anyway because it only cares about nvme(110) not the other root port side of it.
   while (ExtendedCapPtr != 0) {
     Status = PciIo->Pci.Read (
                           PciIo,
@@ -463,6 +464,9 @@ MainEntryPoint (
   //
   // Locate PCIe DOE Capability.
   //
+  UINTN Bus, Device, Function, Segment;
+  PciIo->GetLocation(PciIo, &Segment, &Bus, &Device, &Function);
+  DEBUG ((DEBUG_INFO, "PciDevice: Bus: 0x%x, Dev: 0x%x, Func: 0x%x\n", Bus, Device, Function));
   Status = LocatePcieDoeCapStructure (PciIo, &DoeCapOffset);
   if (EFI_ERROR (Status)) {
     return Status;

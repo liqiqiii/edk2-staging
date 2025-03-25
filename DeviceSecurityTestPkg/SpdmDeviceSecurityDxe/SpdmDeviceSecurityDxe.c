@@ -601,13 +601,14 @@ DeviceAuthentication (
   DeviceSecurityState.Revision            = EDKII_DEVICE_SECURITY_STATE_REVISION;
   DeviceSecurityState.MeasurementState    = 0x0;
   DeviceSecurityState.AuthenticationState = 0x0;
-
+  DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 1 %r\n"));
   Status = mDeviceSecurityPolicy->GetDevicePolicy (mDeviceSecurityPolicy, DeviceId, &DeviceSecurityPolicy);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "mDeviceSecurityPolicy->GetDevicePolicy - %r\n", Status));
     DeviceSecurityState.MeasurementState    = EDKII_DEVICE_SECURITY_STATE_ERROR_UEFI_GET_POLICY_PROTOCOL;
     DeviceSecurityState.AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_UEFI_GET_POLICY_PROTOCOL;
   } else {
+    DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 2 %r\n"));
     Status = SpdmDeviceAuthenticationAndMeasurement (&SpdmDeviceInfo, &DeviceSecurityPolicy, &DeviceSecurityState);
   }
 
@@ -626,12 +627,14 @@ DeviceAuthentication (
     return EFI_UNSUPPORTED;
   }
 #endif
-
+  DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 5 %r\n"));
   if ((DeviceSecurityState.MeasurementState == 0) &&
       (DeviceSecurityState.AuthenticationState == 0))
   {
+    DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 3 %r\n"));
     return EFI_SUCCESS;
   } else {
+    DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 4 %r\n"));
     return EFI_SECURITY_VIOLATION;
   }
 }

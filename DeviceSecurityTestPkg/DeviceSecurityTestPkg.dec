@@ -18,14 +18,14 @@
   ../SecurityPkg/DeviceSecurity/SpdmLib/libspdm/include
 
 [Includes.Common.Private]
-  #Library/SpdmLib/Include
-  #Library/SpdmLib/libspdm/include
+  # Library/SpdmLib/Include
+  # Library/SpdmLib/libspdm/include
   Include/PrivateTest
 
 [LibraryClasses]
   ##  @libraryclass Perform SPDM (following SPDM spec) and measure data to TPM (following TCG PFP spec).
   ##
-  #SpdmSecurityLib|Include/Library/SpdmSecurityLib.h
+  SpdmSecurityLib|Include/Library/SpdmSecurityLib.h
 
 [Guids]
   gEfiDeviceSecurityPkgTokenSpaceGuid      = { 0x506945e8, 0x7603, 0x49ee, { 0xbf, 0x36, 0x6c, 0x28, 0x74, 0xca, 0x26, 0xdc }}
@@ -33,6 +33,8 @@
   gEfiDeviceSecurityPkgTestConfig      = { 0x6761aa6c, 0x41bf, 0x4a38, { 0x84, 0x93, 0x26, 0x6b, 0x11, 0x98, 0x44, 0xfc }}
 
   gEfiDeviceSecuritySpdmUidGuid = {0xe37b5665, 0x5ef9, 0x4e7e, {0xb4, 0x91, 0xd6, 0x78, 0xab, 0xff, 0xfb, 0xcb }}
+
+  gEdkiiCertSpdmCertChainGuid = {0xc5a8d010, 0x43f7, 0x4ec4, {0xa0, 0xe9, 0xb2, 0x72, 0x29, 0x58, 0xd3, 0xf8}}
 
 [Ppis]
 

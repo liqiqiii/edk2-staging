@@ -336,32 +336,32 @@ MainEntryPoint (
   UINTN               DbSize;
   UINT8               *RootCert;
   UINTN               RootCertSize;
-  LIST_ENTRY          *ParamPackage;
-  CHAR16              *TestConfigName;
+  // LIST_ENTRY          *ParamPackage;
+  // CHAR16              *TestConfigName;
   UINT8               TestConfig;
   UINTN               HashSize;
   ShaHashAllFunc      ShaHashAll;
   UINT8               *RootKey;
   UINTN               RootKeySize;
 
-  Status = ShellCommandLineParse (mParamList, &ParamPackage, NULL, TRUE);
-  if (EFI_ERROR (Status)) {
-    Print (L"ERROR: Incorrect command line.\n");
-    return Status;
-  }
+  // Status = ShellCommandLineParse (mParamList, &ParamPackage, NULL, TRUE);
+  // if (EFI_ERROR (Status)) {
+  //   Print (L"ERROR: Incorrect command line.\n");
+  //   return Status;
+  // }
 
-  if (ShellCommandLineGetFlag (ParamPackage, L"-P")) {
-    Status = ProvisionNvIndex ();
-    Print (L"ProvisionNvIndex - Status %r\n", Status);
-  }
+  // if (ShellCommandLineGetFlag (ParamPackage, L"-P")) {
+  //   Status = ProvisionNvIndex ();
+  //   Print (L"ProvisionNvIndex - Status %r\n", Status);
+  // }
 
-  TestConfigName = (CHAR16 *)ShellCommandLineGetValue (ParamPackage, L"-T");
-  if (TestConfigName == NULL) {
-    TestConfig = 0;
-  } else {
-    TestConfig = (UINT8)StrDecimalToUintn (TestConfigName);
-  }
-
+  // TestConfigName = (CHAR16 *)ShellCommandLineGetValue (ParamPackage, L"-T");
+  // if (TestConfigName == NULL) {
+  //   TestConfig = 0;
+  // } else {
+  //   TestConfig = (UINT8)StrDecimalToUintn (TestConfigName);
+  // }
+  TestConfig = 16;
   Print (L"TestConfig - %d\n", TestConfig);
 
   Status = gRT->SetVariable (
@@ -372,52 +372,52 @@ MainEntryPoint (
                   &TestConfig
                   );
 
-  switch (TestConfig) {
-    case TEST_CONFIG_NO_TRUST_ANCHOR:
-      CertChain     = TestCertChain2;
-      CertChainSize = TestCertChain2Size;
-      RootCert      = TestRootCer;
-      RootCertSize  = TestRootCerSize;
-      HashSize      = SHA256_HASH_SIZE;
-      ShaHashAll    = Sha256HashAll;
-      RootKey       = TestRootKey2;
-      RootKeySize   = TestRootKey2Size;
-      break;
+  // switch (TestConfig) {
+  //   case TEST_CONFIG_NO_TRUST_ANCHOR:
+  //     CertChain     = TestCertChain2;
+  //     CertChainSize = TestCertChain2Size;
+  //     RootCert      = TestRootCer;
+  //     RootCertSize  = TestRootCerSize;
+  //     HashSize      = SHA256_HASH_SIZE;
+  //     ShaHashAll    = Sha256HashAll;
+  //     RootKey       = TestRootKey2;
+  //     RootKeySize   = TestRootKey2Size;
+  //     break;
 
-    case TEST_CONFIG_RSASSA_3072_SHA_384:
-      CertChain     = TestCertChain3;
-      CertChainSize = TestCertChain3Size;
-      RootCert      = TestRootCer3;
-      RootCertSize  = TestRootCer3Size;
-      HashSize      = SHA384_HASH_SIZE;
-      ShaHashAll    = Sha384HashAll;
-      RootKey       = TestRootKey3;
-      RootKeySize   = TestRootKey3Size;
-      break;
+  //   case TEST_CONFIG_RSASSA_3072_SHA_384:
+      // CertChain     = TestCertChain3;
+      // CertChainSize = TestCertChain3Size;
+      // RootCert      = TestRootCer3;
+      // RootCertSize  = TestRootCer3Size;
+      // HashSize      = SHA384_HASH_SIZE;
+      // ShaHashAll    = Sha384HashAll;
+      // RootKey       = TestRootKey3;
+      // RootKeySize   = TestRootKey3Size;
+  //     break;
 
-    case TEST_CONFIG_RSASSA_4096_SHA_512:
-      CertChain     = TestCertChain4;
-      CertChainSize = TestCertChain4Size;
-      RootCert      = TestRootCer4;
-      RootCertSize  = TestRootCer4Size;
-      HashSize      = SHA512_HASH_SIZE;
-      ShaHashAll    = Sha512HashAll;
-      RootKey       = TestRootKey4;
-      RootKeySize   = TestRootKey4Size;
-      break;
+  //   case TEST_CONFIG_RSASSA_4096_SHA_512:
+  //     CertChain     = TestCertChain4;
+  //     CertChainSize = TestCertChain4Size;
+  //     RootCert      = TestRootCer4;
+  //     RootCertSize  = TestRootCer4Size;
+  //     HashSize      = SHA512_HASH_SIZE;
+  //     ShaHashAll    = Sha512HashAll;
+  //     RootKey       = TestRootKey4;
+  //     RootKeySize   = TestRootKey4Size;
+  //     break;
 
-    case TEST_CONFIG_ECDSA_ECC_P256_SHA_256:
-      CertChain     = EccTestCertChain;
-      CertChainSize = EccTestCertChainSize;
-      RootCert      = EccTestRootCer;
-      RootCertSize  = EccTestRootCerSize;
-      HashSize      = SHA256_HASH_SIZE;
-      ShaHashAll    = Sha256HashAll;
-      RootKey       = EccTestRootKey;
-      RootKeySize   = EccTestRootKeySize;
-      break;
+  //   case TEST_CONFIG_ECDSA_ECC_P256_SHA_256:
+  //     CertChain     = EccTestCertChain;
+  //     CertChainSize = EccTestCertChainSize;
+  //     RootCert      = EccTestRootCer;
+  //     RootCertSize  = EccTestRootCerSize;
+  //     HashSize      = SHA256_HASH_SIZE;
+  //     ShaHashAll    = Sha256HashAll;
+  //     RootKey       = EccTestRootKey;
+  //     RootKeySize   = EccTestRootKeySize;
+  //     break;
 
-    case TEST_CONFIG_ECDSA_ECC_P384_SHA_384:
+  //   case TEST_CONFIG_ECDSA_ECC_P384_SHA_384:
       CertChain     = EccTestCertChain2;
       CertChainSize = EccTestCertChain2Size;
       RootCert      = EccTestRootCer2;
@@ -426,91 +426,109 @@ MainEntryPoint (
       ShaHashAll    = Sha384HashAll;
       RootKey       = EccTestRootKey2;
       RootKeySize   = EccTestRootKey2Size;
-      break;
+  //     break;
 
-    case TEST_CONFIG_ECDSA_ECC_P521_SHA_512:
-      CertChain     = EccTestCertChain3;
-      CertChainSize = EccTestCertChain3Size;
-      RootCert      = EccTestRootCer3;
-      RootCertSize  = EccTestRootCer3Size;
-      HashSize      = SHA512_HASH_SIZE;
-      ShaHashAll    = Sha512HashAll;
-      RootKey       = EccTestRootKey3;
-      RootKeySize   = EccTestRootKey3Size;
-      break;
+  //   case TEST_CONFIG_ECDSA_ECC_P521_SHA_512:
+  //     CertChain     = EccTestCertChain3;
+  //     CertChainSize = EccTestCertChain3Size;
+  //     RootCert      = EccTestRootCer3;
+  //     RootCertSize  = EccTestRootCer3Size;
+  //     HashSize      = SHA512_HASH_SIZE;
+  //     ShaHashAll    = Sha512HashAll;
+  //     RootKey       = EccTestRootKey3;
+  //     RootKeySize   = EccTestRootKey3Size;
+  //     break;
 
-    default:
-      CertChain     = TestCertChain;
-      CertChainSize = TestCertChainSize;
-      RootCert      = TestRootCer;
-      RootCertSize  = TestRootCerSize;
-      HashSize      = SHA256_HASH_SIZE;
-      ShaHashAll    = Sha256HashAll;
-      RootKey       = TestRootKey;
-      RootKeySize   = TestRootKeySize;
-      break;
-  }
+  //   default:
+  //     CertChain     = TestCertChain;
+  //     CertChainSize = TestCertChainSize;
+  //     RootCert      = TestRootCer;
+  //     RootCertSize  = TestRootCerSize;
+  //     HashSize      = SHA256_HASH_SIZE;
+  //     ShaHashAll    = Sha256HashAll;
+  //     RootKey       = TestRootKey;
+  //     RootKeySize   = TestRootKeySize;
+  //     break;
+  // }
 
-  if (TestConfig != TEST_CONFIG_NO_CHAL_CAP_NO_ROOT_CA) {
-    if (TestConfig == TEST_CONFIG_MULTIPLE_CERT_IN_DB) {
-      //
-      // In this test config, The database has two signature lists.
-      // The first one contains two siganture data for two root certs.
-      // The second one contains one signature data for one root cert
-      // which matches the cert chain of the responder.
-      //
-      SignatureHeaderSize = 0;
-      DbSize = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + 2 * (sizeof (EFI_GUID) + EccTestRootCer3Size) +
-               sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID) + TestRootCerSize;
-      DbList        = AllocateZeroPool (DbSize);
-      ASSERT (DbList != NULL);
-      SignatureList = DbList;
-      RootCert = EccTestRootCer3;
-      RootCertSize = EccTestRootCer3Size;
-      SignatureListSize   = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + 2 * (sizeof (EFI_GUID) + RootCertSize);
-      CopyGuid (&SignatureList->SignatureType, &gEfiCertX509Guid);
-      SignatureList->SignatureListSize   = (UINT32)SignatureListSize;
-      SignatureList->SignatureHeaderSize = (UINT32)SignatureHeaderSize;
-      SignatureList->SignatureSize       = (UINT32)(sizeof (EFI_GUID) + RootCertSize);
-      CertData                           = (EFI_SIGNATURE_DATA *)((UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST));
-      CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
-      CopyMem (
-        (UINT8 *)CertData->SignatureData,
-        RootCert,
-        RootCertSize
-        );
-      CertData = (EFI_SIGNATURE_DATA *)((UINT8 *)CertData + SignatureList->SignatureSize);
-      CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
-      CopyMem (
-        (UINT8 *)CertData->SignatureData,
-        RootCert,
-        RootCertSize
-        );
+  // if (TestConfig != TEST_CONFIG_NO_CHAL_CAP_NO_ROOT_CA) {
+  //   if (TestConfig == TEST_CONFIG_MULTIPLE_CERT_IN_DB) {
+  //     //
+  //     // In this test config, The database has two signature lists.
+  //     // The first one contains two siganture data for two root certs.
+  //     // The second one contains one signature data for one root cert
+  //     // which matches the cert chain of the responder.
+  //     //
+  //     SignatureHeaderSize = 0;
+  //     DbSize = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + 2 * (sizeof (EFI_GUID) + EccTestRootCer3Size) +
+  //              sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID) + TestRootCerSize;
+  //     DbList        = AllocateZeroPool (DbSize);
+  //     ASSERT (DbList != NULL);
+  //     SignatureList = DbList;
+  //     RootCert = EccTestRootCer3;
+  //     RootCertSize = EccTestRootCer3Size;
+  //     SignatureListSize   = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + 2 * (sizeof (EFI_GUID) + RootCertSize);
+  //     CopyGuid (&SignatureList->SignatureType, &gEfiCertX509Guid);
+  //     SignatureList->SignatureListSize   = (UINT32)SignatureListSize;
+  //     SignatureList->SignatureHeaderSize = (UINT32)SignatureHeaderSize;
+  //     SignatureList->SignatureSize       = (UINT32)(sizeof (EFI_GUID) + RootCertSize);
+  //     CertData                           = (EFI_SIGNATURE_DATA *)((UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST));
+  //     CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
+  //     CopyMem (
+  //       (UINT8 *)CertData->SignatureData,
+  //       RootCert,
+  //       RootCertSize
+  //       );
+  //     CertData = (EFI_SIGNATURE_DATA *)((UINT8 *)CertData + SignatureList->SignatureSize);
+  //     CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
+  //     CopyMem (
+  //       (UINT8 *)CertData->SignatureData,
+  //       RootCert,
+  //       RootCertSize
+  //       );
 
-      RootCert = TestRootCer;
-      RootCertSize = TestRootCerSize;
-      SignatureList  = (EFI_SIGNATURE_LIST *)((UINT8 *)SignatureList + SignatureList->SignatureListSize);
-      SignatureListSize = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID) + RootCertSize;
-      CopyGuid (&SignatureList->SignatureType, &gEfiCertX509Guid);
-      SignatureList->SignatureListSize   = (UINT32)SignatureListSize;
-      SignatureList->SignatureHeaderSize = (UINT32)SignatureHeaderSize;
-      SignatureList->SignatureSize       = (UINT32)(sizeof (EFI_GUID) + RootCertSize);
-      CertData                           = (EFI_SIGNATURE_DATA *)((UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST));
-      CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
-      CopyMem (
-        (UINT8 *)CertData->SignatureData,
-        RootCert,
-        RootCertSize
-        );
-    } else if (TestConfig == TEST_CONFIG_NO_EFI_CERT_X509_GUID_IN_DB) {
+  //     RootCert = TestRootCer;
+  //     RootCertSize = TestRootCerSize;
+  //     SignatureList  = (EFI_SIGNATURE_LIST *)((UINT8 *)SignatureList + SignatureList->SignatureListSize);
+  //     SignatureListSize = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID) + RootCertSize;
+  //     CopyGuid (&SignatureList->SignatureType, &gEfiCertX509Guid);
+  //     SignatureList->SignatureListSize   = (UINT32)SignatureListSize;
+  //     SignatureList->SignatureHeaderSize = (UINT32)SignatureHeaderSize;
+  //     SignatureList->SignatureSize       = (UINT32)(sizeof (EFI_GUID) + RootCertSize);
+  //     CertData                           = (EFI_SIGNATURE_DATA *)((UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST));
+  //     CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
+  //     CopyMem (
+  //       (UINT8 *)CertData->SignatureData,
+  //       RootCert,
+  //       RootCertSize
+  //       );
+  //   } else if (TestConfig == TEST_CONFIG_NO_EFI_CERT_X509_GUID_IN_DB) {
+  //     SignatureHeaderSize = 0;
+  //     DbSize   = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID) + RootCertSize;
+  //     DbList   = AllocateZeroPool (DbSize);
+  //     SignatureList = DbList;
+  //     SignatureListSize = DbSize;
+  //     ASSERT (SignatureList != NULL);
+  //     // Here the SignatureType is gEfiCertSha256Guid, not gEfiCertX509Guid.
+  //     CopyGuid (&SignatureList->SignatureType, &gEfiCertSha256Guid);
+  //     SignatureList->SignatureListSize   = (UINT32)SignatureListSize;
+  //     SignatureList->SignatureHeaderSize = (UINT32)SignatureHeaderSize;
+  //     SignatureList->SignatureSize       = (UINT32)(sizeof (EFI_GUID) + RootCertSize);
+  //     CertData                           = (VOID *)((UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST));
+  //     CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
+  //     CopyMem (
+  //       (UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID),
+  //       RootCert,
+  //       RootCertSize
+  //       );
+  //   } else {
       SignatureHeaderSize = 0;
       DbSize   = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID) + RootCertSize;
       DbList   = AllocateZeroPool (DbSize);
       SignatureList = DbList;
       SignatureListSize = DbSize;
       ASSERT (SignatureList != NULL);
-      // Here the SignatureType is gEfiCertSha256Guid, not gEfiCertX509Guid.
-      CopyGuid (&SignatureList->SignatureType, &gEfiCertSha256Guid);
+      CopyGuid (&SignatureList->SignatureType, &gEfiCertX509Guid);
       SignatureList->SignatureListSize   = (UINT32)SignatureListSize;
       SignatureList->SignatureHeaderSize = (UINT32)SignatureHeaderSize;
       SignatureList->SignatureSize       = (UINT32)(sizeof (EFI_GUID) + RootCertSize);
@@ -521,25 +539,7 @@ MainEntryPoint (
         RootCert,
         RootCertSize
         );
-    } else {
-      SignatureHeaderSize = 0;
-      DbSize   = sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID) + RootCertSize;
-      DbList   = AllocateZeroPool (DbSize);
-      SignatureList = DbList;
-      SignatureListSize = DbSize;
-      ASSERT (SignatureList != NULL);
-      CopyGuid (&SignatureList->SignatureType, &gEfiCertX509Guid);
-      SignatureList->SignatureListSize   = (UINT32)SignatureListSize;
-      SignatureList->SignatureHeaderSize = (UINT32)SignatureHeaderSize;
-      SignatureList->SignatureSize       = (UINT32)(sizeof (EFI_GUID) + RootCertSize);
-      CertData                           = (VOID *)((UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST));
-      CopyGuid (&CertData->SignatureOwner, &gEfiCallerIdGuid);
-      CopyMem (
-        (UINT8 *)SignatureList + sizeof (EFI_SIGNATURE_LIST) + SignatureHeaderSize + sizeof (EFI_GUID),
-        RootCert,
-        RootCertSize
-        );
-    }
+    // }
     Status = gRT->SetVariable (
                     EFI_DEVICE_SECURITY_DATABASE,
                     &gEfiDeviceSignatureDatabaseGuid,
@@ -551,7 +551,7 @@ MainEntryPoint (
                     );
     ASSERT_EFI_ERROR (Status);
     FreePool (DbList);
-  }
+  // }
 
   ResponderCertChainSize = sizeof (SPDM_CERT_CHAIN) + HashSize + CertChainSize;
   ResponderCertChain     = AllocateZeroPool (ResponderCertChainSize);
