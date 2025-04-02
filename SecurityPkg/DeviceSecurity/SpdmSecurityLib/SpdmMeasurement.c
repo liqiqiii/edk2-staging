@@ -527,7 +527,7 @@ DoDeviceMeasurement (
   UINT8                        AuthState;
   UINT8                        ContentChanged;
   UINT8                        ContentChangedCount;
-
+  DEBUG ((DEBUG_INFO, "[meausrement Entry...\n"));
   SpdmContext = SpdmDeviceContext->SpdmContext;
 
   ZeroMem (&Parameter, sizeof (Parameter));
@@ -572,6 +572,7 @@ DoDeviceMeasurement (
                  NULL,
                  0
                  );
+  DEBUG ((DEBUG_INFO, "[meausrement Entry2...\n"));
   if (LIBSPDM_STATUS_IS_SUCCESS (SpdmReturn)) {
     DEBUG ((DEBUG_INFO, "NumberOfBlocks %d\n", NumberOfBlocks));
 
@@ -597,12 +598,15 @@ DoDeviceMeasurement (
       }
     }
   } else if (SpdmReturn == LIBSPDM_STATUS_VERIF_FAIL) {
+    DEBUG ((DEBUG_INFO, "[%a]...%x\n ", __FUNCTION__, LIBSPDM_STATUS_VERIF_FAIL));
     AuthState                       = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
     SecurityState->MeasurementState = EDKII_DEVICE_SECURITY_STATE_ERROR_MEASUREMENT_AUTH_FAILURE;
     Status                          = ExtendMeasurement (SpdmDeviceContext, AuthState, 0, NULL, NULL, NULL, SecurityState);
+    DEBUG ((DEBUG_INFO, "[meausrement Entry77...%r\n", Status));
     return Status;
   } else {
     ContentChangedCount = 0;
+    DEBUG ((DEBUG_INFO, "[meausrement Entry6...\n"));
 ContentChangedFlag:
     RequestAttribute      = 0;
     ContentChanged        = SPDM_MEASUREMENTS_RESPONSE_CONTENT_NO_CHANGE_DETECTED;
@@ -622,6 +626,7 @@ ContentChangedFlag:
                    NULL,
                    NULL
                    );
+    DEBUG ((DEBUG_INFO, "[%a]..cool.%x\n ", __FUNCTION__, SpdmReturn));
     if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
       SecurityState->MeasurementState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_ERROR;
       return EFI_DEVICE_ERROR;
@@ -631,6 +636,7 @@ ContentChangedFlag:
 
     ReceivedNumberOfBlock = 0;
     for (Index = 1; Index <= 0xFE; Index++) {
+      DEBUG ((DEBUG_INFO, "[meausrement Entry...  index%d\n", Index));
       if (ReceivedNumberOfBlock == NumberOfBlocks) {
         break;
       }

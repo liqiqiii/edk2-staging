@@ -271,9 +271,9 @@ CreateSpdmDeviceContext (
   }
 
   if (SpdmDeviceInfo->SpdmIoProtocolGuid != NULL) {
-    Status = gBS->HandleProtocol (
-                    SpdmDeviceContext->DeviceId.DeviceHandle,
+    Status = gBS->LocateProtocol (
                     SpdmDeviceInfo->SpdmIoProtocolGuid,
+                    NULL,
                     (VOID **)&SpdmDeviceContext->SpdmIoProtocol
                     );
     if (EFI_ERROR (Status)) {
@@ -315,6 +315,7 @@ CreateSpdmDeviceContext (
   if ((!EFI_ERROR (Status)) && (SpdmDeviceContext->SignatureList != NULL)) {
     DbList = SpdmDeviceContext->SignatureList;
     DbSize = SpdmDeviceContext->SignatureListSize;
+    DEBUG ((DEBUG_ERROR, "RecordSpdmDeviceContextInList 4 %r \n", Status));
     while ((DbSize > 0) && (SpdmDeviceContext->SignatureListSize >= DbList->SignatureListSize)) {
       if (DbList->SignatureListSize == 0) {
         break;
@@ -336,17 +337,21 @@ CreateSpdmDeviceContext (
       for (Index = 0; Index < CertCount; Index++) {
         Data     = Cert->SignatureData;
         DataSize = DbList->SignatureSize - sizeof (EFI_GUID);
-
+        DEBUG ((DEBUG_ERROR, "cdert value 4 %r \n", Status, Data));
         ZeroMem (&Parameter, sizeof (Parameter));
         Parameter.location = SpdmDataLocationLocal;
+          DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 500 \n"));
         SpdmReturn         = SpdmSetData (SpdmContext, SpdmDataPeerPublicRootCert, &Parameter, Data, DataSize);
+            DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 501 \n"));
         if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
+            DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 502 \n"));
           if (SpdmReturn == LIBSPDM_STATUS_BUFFER_FULL) {
             Status = RecordConnectionFailureStatus (
                        CONNECTUIN_FAILURE_STGNATURE_DB_FUL_STRING,
                        sizeof (CONNECTUIN_FAILURE_STGNATURE_DB_FUL_STRING)
                        );
             if (EFI_ERROR (Status)) {
+                DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 503 \n"));
               goto Error;
             }
 
@@ -367,6 +372,7 @@ CreateSpdmDeviceContext (
   Data8 = 0;
   ZeroMem (&Parameter, sizeof (Parameter));
   Parameter.location = SpdmDataLocationLocal;
+      DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 500 \n"));
   SpdmReturn         = SpdmSetData (SpdmContext, SpdmDataCapabilityCTExponent, &Parameter, &Data8, sizeof (Data8));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     ASSERT (FALSE);
@@ -381,6 +387,7 @@ CreateSpdmDeviceContext (
   }
 
   Data8      = SPDM_MEASUREMENT_SPECIFICATION_DMTF;
+  DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 510 \n"));
   SpdmReturn = SpdmSetData (SpdmContext, SpdmDataMeasurementSpec, &Parameter, &Data8, sizeof (Data8));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     ASSERT (FALSE);
@@ -397,9 +404,10 @@ CreateSpdmDeviceContext (
              SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P384 |
              SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P521;
   }
-
+    DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 511 \n"));
   SpdmReturn = SpdmSetData (SpdmContext, SpdmDataBaseAsymAlgo, &Parameter, &Data32, sizeof (Data32));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
+    DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 540 \n"));
     ASSERT (FALSE);
     goto Error;
   }
@@ -414,6 +422,7 @@ CreateSpdmDeviceContext (
 
   SpdmReturn = SpdmSetData (SpdmContext, SpdmDataBaseHashAlgo, &Parameter, &Data32, sizeof (Data32));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
+      DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 541 \n"));
     ASSERT (FALSE);
     goto Error;
   }
@@ -440,11 +449,12 @@ CreateSpdmDeviceContext (
     DEBUG ((DEBUG_ERROR, "SpdmGetData - %p\n", SpdmReturn));
     goto Error;
   }
-
+    DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 542 \n"));
   SpdmDeviceContext->SpdmVersion = (Data16 >> SPDM_VERSION_NUMBER_SHIFT_BIT);
 
   return SpdmDeviceContext;
 Error:
+    DEBUG ((DEBUG_ERROR, "tag spdm cont3ext 544 \n"));
   DestroySpdmDeviceContext (SpdmDeviceContext);
   return NULL;
 }

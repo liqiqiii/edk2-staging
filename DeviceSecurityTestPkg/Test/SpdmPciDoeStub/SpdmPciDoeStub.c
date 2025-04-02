@@ -480,7 +480,7 @@ MainEntryPoint (
   SpdmPrivateData->DoeCapabilityOffset = DoeCapOffset;
   SpdmPrivateData->PciIo               = PciIo;
 
-  Handle = NULL;
+  // Handle = NULL;
   Status = gBS->InstallProtocolInterface (
                   &Handle,
                   &gSpdmIoProtocolGuid,

@@ -414,7 +414,7 @@ SpdmIoProtocolCallback (
   EFI_STATUS  Status;
   EFI_HANDLE  Handle;
   UINTN       BufferSize;
-
+  DEBUG ((DEBUG_ERROR, "SpdmIoProtocolCallback - 1 \n"));
   while (TRUE) {
     BufferSize = sizeof (EFI_HANDLE);
     Handle     = NULL;
@@ -426,6 +426,7 @@ SpdmIoProtocolCallback (
                         &Handle
                         );
     if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "SpdmIoProtocolCallback - 2 \n"));
       return;
     }
 
@@ -438,6 +439,7 @@ SpdmIoProtocolCallback (
                     EFI_NATIVE_INTERFACE,
                     (VOID **)&mSpdmProtocol
                     );
+    DEBUG ((DEBUG_ERROR, "SpdmIoProtocolCallback - 3 \n"));
     ASSERT_EFI_ERROR (Status);
   }
 }
@@ -454,4 +456,5 @@ InitializeSpdmCommunication (
                    NULL,
                    &mSpdmIoRegistration
                    );
+  DEBUG ((DEBUG_ERROR, "spdmio callback - 4 %r\n"));
 }

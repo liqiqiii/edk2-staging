@@ -143,7 +143,7 @@ ExtendCertificate (
 
   DeviceContextSize = GetDeviceMeasurementContextSize (SpdmDeviceContext);
   DevicePathSize    = GetDevicePathSize (SpdmDeviceContext->DevicePath);
-
+   DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 authstate %x \n", AuthState));
   switch (AuthState) {
     case TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_SUCCESS:
     case TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_NO_AUTH:
@@ -219,7 +219,7 @@ ExtendCertificate (
         SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_TCG_EXTEND_TPM_PCR;
       }
 
-      DEBUG ((DEBUG_INFO, "TpmMeasureAndLogData (Instance) - %r\n", Status));
+      DEBUG ((DEBUG_INFO, "TpmMeasureAndLogData (Instance) 1- %r\n", Status));
 
       break;
     case TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID:
@@ -290,7 +290,7 @@ ExtendCertificate (
         SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_TCG_EXTEND_TPM_PCR;
       }
 
-      DEBUG ((DEBUG_INFO, "TpmMeasureAndLogData (Instance) - %r\n", Status));
+      DEBUG ((DEBUG_INFO, "TpmMeasureAndLogData (Instance) 2- %r\n", Status));
 
       goto Exit;
     case TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_NO_SIG:
@@ -354,7 +354,7 @@ ExtendCertificate (
         SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_TCG_EXTEND_TPM_PCR;
       }
 
-      DEBUG ((DEBUG_INFO, "TpmMeasureAndLogData (Instance) - %r\n", Status));
+      DEBUG ((DEBUG_INFO, "TpmMeasureAndLogData (Instance) 3- %r\n", Status));
 
       goto Exit;
     default:
@@ -523,6 +523,7 @@ DoDeviceCertificate (
   Parameter.location = SpdmDataLocationConnection;
   DataSize           = sizeof (CapabilityFlags);
   SpdmReturn         = SpdmGetData (SpdmContext, SpdmDataCapabilityFlags, &Parameter, &CapabilityFlags, &DataSize);
+  DEBUG ((DEBUG_INFO, "[PciIoPciDoeStub data32 end %x\n", CapabilityFlags));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_ERROR;
     return EFI_DEVICE_ERROR;
@@ -534,21 +535,24 @@ DoDeviceCertificate (
   ZeroMem (CertChain, sizeof (CertChain));
   TrustAnchor     = NULL;
   TrustAnchorSize = 0;
-
+  CapabilityFlags |= SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
   //
   // Init *ValidSlotId to invalid slot_id
   //
   *ValidSlotId = SPDM_MAX_SLOT_COUNT;
-
+  DEBUG ((DEBUG_ERROR, "do device certificate\n"));
   if ((CapabilityFlags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP) == 0) {
+    DEBUG ((DEBUG_ERROR, "do device certificate -2\n"));
     *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_NO_SIG;
     SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_NO_CAPABILITIES;
     Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, 0, SecurityState);
     return Status;
   } else {
+    DEBUG ((DEBUG_ERROR, "do device certificate-3\n"));
     ZeroMem (TotalDigestBuffer, sizeof (TotalDigestBuffer));
     SpdmReturn = SpdmGetDigest (SpdmContext, NULL, &SlotMask, TotalDigestBuffer);
     if ((LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) || ((SlotMask & 0x01) == 0)) {
+      DEBUG ((DEBUG_ERROR,  "[%a]DoDeviceCertificate mid5 12 %x %x \n", __FUNCTION__, SpdmReturn, SlotMask));
       *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
       SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_CERTIFIACTE_FAILURE;
       SlotId                             = 0;
@@ -557,6 +561,7 @@ DoDeviceCertificate (
     }
 
     for (SlotId = 0; SlotId < SPDM_MAX_SLOT_COUNT; SlotId++) {
+      DEBUG ((DEBUG_ERROR, "do device certificate %d\n", SlotId));
       if (((SlotMask >> SlotId) & 0x01) == 0) {
         continue;
       }
@@ -581,6 +586,7 @@ DoDeviceCertificate (
     }
 
     if ((SlotId >= SPDM_MAX_SLOT_COUNT) && (*ValidSlotId == SPDM_MAX_SLOT_COUNT)) {
+      DEBUG ((DEBUG_ERROR, "do device certificate error"));
       SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_ERROR;
       return EFI_DEVICE_ERROR;
     }
@@ -658,19 +664,24 @@ DoDeviceAuthentication (
   if ((!LIBSPDM_STATUS_IS_SUCCESS (SpdmReturn)) && (!(SpdmReturn == LIBSPDM_STATUS_VERIF_NO_AUTHORITY))) {
     return EFI_DEVICE_ERROR;
   }
-
+  DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid \n"));
   if ((CapabilityFlags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHAL_CAP) == 0) {
     *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_NO_BINDING;
     SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_NO_CAPABILITIES;
     Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, CertChainSize, CertChain, NULL, 0, ValidSlotId, SecurityState);
+    DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid4 %r\n", Status));
     return Status;
   } else {
+    DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 \n"));
     ZeroMem (RequesterNonce, sizeof (RequesterNonce));
     ZeroMem (ResponderNonce, sizeof (ResponderNonce));
     SpdmReturn = SpdmChallengeEx (SpdmContext, NULL, ValidSlotId, SPDM_CHALLENGE_REQUEST_NO_MEASUREMENT_SUMMARY_HASH, NULL, NULL, NULL, RequesterNonce, ResponderNonce, NULL, 0);
+    DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 - spdmreturn - %d \n", SpdmReturn));
     if (SpdmReturn == LIBSPDM_STATUS_SUCCESS) {
+      DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 7 \n"));
       IsValidChallengeAuthSig = TRUE;
     } else if ((LIBSPDM_STATUS_IS_ERROR (SpdmReturn))) {
+        DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 8 \n"));
       IsValidChallengeAuthSig            = FALSE;
       *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
       SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_CHALLENGE_FAILURE;
@@ -679,19 +690,23 @@ DoDeviceAuthentication (
     } else {
       return EFI_DEVICE_ERROR;
     }
+    // if(AuthState != TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_SUCCESS){
+      if (IsValidCertChain && IsValidChallengeAuthSig && !RootCertMatch) {
+        *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_NO_AUTH;
+        SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_NO_CERT_PROVISION;
+        Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, CertChainSize, CertChain, NULL, 0, ValidSlotId, SecurityState);
+        DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 rootcertunmatch %r \n", Status));
+      } else if (IsValidCertChain && IsValidChallengeAuthSig && RootCertMatch) {
+        *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_SUCCESS;
+        SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_SUCCESS;
+        Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, CertChainSize, CertChain, TrustAnchor, TrustAnchorSize, ValidSlotId, SecurityState);
+        DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 91 %r \n", Status));
+      }
 
-    if (IsValidCertChain && IsValidChallengeAuthSig && !RootCertMatch) {
-      *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_NO_AUTH;
-      SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_NO_CERT_PROVISION;
-      Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, CertChainSize, CertChain, NULL, 0, ValidSlotId, SecurityState);
-    } else if (IsValidCertChain && IsValidChallengeAuthSig && RootCertMatch) {
-      *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_SUCCESS;
-      SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_SUCCESS;
-      Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, CertChainSize, CertChain, TrustAnchor, TrustAnchorSize, ValidSlotId, SecurityState);
-    }
-
-    Status = ExtendAuthentication (SpdmDeviceContext, *AuthState, RequesterNonce, ResponderNonce, SecurityState);
+      Status = ExtendAuthentication (SpdmDeviceContext, *AuthState, RequesterNonce, ResponderNonce, SecurityState);
+      DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 92 %r \n", Status));
+    // }
   }
-
+  DEBUG ((DEBUG_ERROR, "DoDeviceCertificate mid5 95 %r \n", Status));
   return Status;
 }

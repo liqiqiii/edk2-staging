@@ -22,30 +22,31 @@ IsDeviceAuthBootEnabled (
   VOID
   )
 {
-  EFI_STATUS  Status;
-  UINT8       *DeviceAuthBootMode;
+  return TRUE;
+  // EFI_STATUS  Status;
+  // UINT8       *DeviceAuthBootMode;
 
-  DeviceAuthBootMode = NULL;
+  // DeviceAuthBootMode = NULL;
 
-  Status = GetEfiGlobalVariable2 (EFI_DEVICE_AUTH_BOOT_MODE_NAME, (VOID **)&DeviceAuthBootMode, NULL);
-  //
-  // Skip verification if DeviceAuthBootMode variable doesn't exist.
-  //
-  if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Cannot check DeviceAuthBootMode variable %r \n ", Status));
-    return FALSE;
-  }
+  // Status = GetEfiGlobalVariable2 (EFI_DEVICE_AUTH_BOOT_MODE_NAME, (VOID **)&DeviceAuthBootMode, NULL);
+  // //
+  // // Skip verification if DeviceAuthBootMode variable doesn't exist.
+  // //
+  // if (EFI_ERROR (Status)) {
+  //   DEBUG ((DEBUG_ERROR, "Cannot check DeviceAuthBootMode variable %r \n ", Status));
+  //   return FALSE;
+  // }
 
-  //
-  // Skip verification if DeviceAuthBootMode is disabled but not AuditMode
-  //
-  if (*DeviceAuthBootMode == DEVICE_AUTH_BOOT_MODE_DISABLE) {
-    FreePool (DeviceAuthBootMode);
-    return FALSE;
-  } else {
-    FreePool (DeviceAuthBootMode);
-    return TRUE;
-  }
+  // //
+  // // Skip verification if DeviceAuthBootMode is disabled but not AuditMode
+  // //
+  // if (*DeviceAuthBootMode == DEVICE_AUTH_BOOT_MODE_DISABLE) {
+  //   FreePool (DeviceAuthBootMode);
+  //   return FALSE;
+  // } else {
+  //   FreePool (DeviceAuthBootMode);
+  //   return TRUE;
+  // }
 }
 
 /**
@@ -74,11 +75,12 @@ SpdmDeviceAuthenticationAndMeasurement (
   BOOLEAN              IsValidCertChain;
   BOOLEAN              RootCertMatch;
 
-  if ((PcdGet32 (PcdTcgPfpMeasurementRevision) < TCG_EfiSpecIDEventStruct_SPEC_ERRATA_TPM2_REV_106) ||
-      (PcdGet8 (PcdEnableSpdmDeviceAuthenticaion) == 0))
-  {
-    return EFI_UNSUPPORTED;
-  }
+  // if ((PcdGet32 (PcdTcgPfpMeasurementRevision) < TCG_EfiSpecIDEventStruct_SPEC_ERRATA_TPM2_REV_106) ||
+  //     (PcdGet8 (PcdEnableSpdmDeviceAuthenticaion) == 0))
+  // {
+  //   DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 2.3 \n"));
+  //   return EFI_UNSUPPORTED;
+  // }
 
   SpdmDeviceContext = CreateSpdmDeviceContext (SpdmDeviceInfo, SecurityState);
   if (SpdmDeviceContext == NULL) {
@@ -90,11 +92,14 @@ SpdmDeviceAuthenticationAndMeasurement (
   SlotId           = 0;
   IsValidCertChain = FALSE;
   RootCertMatch    = FALSE;
-
+  DEBUG ((DEBUG_ERROR, "DoDeviceCertificate started- before %r\n", Status));
   if (((SecurityPolicy->AuthenticationPolicy & EDKII_DEVICE_AUTHENTICATION_REQUIRED) != 0) ||
       ((SecurityPolicy->MeasurementPolicy & EDKII_DEVICE_MEASUREMENT_REQUIRED) != 0))
   {
+    DEBUG ((DEBUG_ERROR, "DoDeviceCertificate started- %r\n", Status));
     Status = DoDeviceCertificate (SpdmDeviceContext, &AuthState, &SlotId, SecurityState, &IsValidCertChain, &RootCertMatch);
+    DEBUG ((DEBUG_ERROR, "DoDeviceCertificate rootcertmatch - %d\n", RootCertMatch));
+    DEBUG ((DEBUG_ERROR, "DoDeviceCertificate rootcertmatch - %d\n", IsValidCertChain));
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "DoDeviceCertificate failed - %r\n", Status));
       goto Ret;
@@ -106,6 +111,8 @@ SpdmDeviceAuthenticationAndMeasurement (
   }
 
   if (((SecurityPolicy->AuthenticationPolicy & EDKII_DEVICE_AUTHENTICATION_REQUIRED) != 0) && (IsDeviceAuthBootEnabled ())) {
+    DEBUG ((DEBUG_ERROR, "DoDeviceauthentication started- %r\n", Status));
+    DEBUG ((DEBUG_ERROR, "DoDeviceCertificate rootcertmatch - 2%d\n", RootCertMatch));
     Status = DoDeviceAuthentication (SpdmDeviceContext, &AuthState, SlotId, IsValidCertChain, RootCertMatch, SecurityState);
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "DoDeviceAuthentication failed - %r\n", Status));
@@ -118,6 +125,7 @@ SpdmDeviceAuthenticationAndMeasurement (
   }
 
   if ((SecurityPolicy->MeasurementPolicy & EDKII_DEVICE_MEASUREMENT_REQUIRED) != 0) {
+    DEBUG ((DEBUG_INFO, "[meausrement Entry0...\n"));
     Status = DoDeviceMeasurement (SpdmDeviceContext, SlotId, SecurityState);
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "DoDeviceMeasurement failed - %r\n", Status));

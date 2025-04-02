@@ -108,7 +108,7 @@ GetDevicePolicy (
   Status = PciIo->Pci.Read (PciIo, EfiPciIoWidthUint16, PCI_DEVICE_ID_OFFSET, 1, &PciDeviceId);
   ASSERT_EFI_ERROR (Status);
   DEBUG ((DEBUG_INFO, "PCI Info - %04x:%04x\n", PciVendorId, PciDeviceId));
-
+  DEBUG ((DEBUG_INFO, "testconfig - %d\n", TestConfig));
   if (TestConfig == TEST_CONFIG_SECURITY_POLICY_AUTH_ONLY) {
     CopyMem (DeviceSecurityPolicy, &mDeviceSecurityPolicyAuthOnly, sizeof (EDKII_DEVICE_SECURITY_POLICY));
   } else if (TestConfig == TEST_CONFIG_SECURITY_POLICY_MEAS_ONLY) {
@@ -117,6 +117,7 @@ GetDevicePolicy (
     CopyMem (DeviceSecurityPolicy, &mDeviceSecurityPolicyNone, sizeof (EDKII_DEVICE_SECURITY_POLICY));
   } else {
     CopyMem (DeviceSecurityPolicy, &mDeviceSecurityPolicyFull, sizeof (EDKII_DEVICE_SECURITY_POLICY));
+    DEBUG ((DEBUG_INFO, "DeviceSecurityPolicy - %d  && %d\n", DeviceSecurityPolicy->AuthenticationPolicy, DeviceSecurityPolicy->MeasurementPolicy));
   }
 
   return EFI_SUCCESS;

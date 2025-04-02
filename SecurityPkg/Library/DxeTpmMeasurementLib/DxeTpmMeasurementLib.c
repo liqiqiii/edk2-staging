@@ -248,6 +248,7 @@ TpmMeasureAndLogData (
   EFI_CC_MEASUREMENT_PROTOCOL  *CcProtocol;
 
   Status = gBS->LocateProtocol (&gEfiCcMeasurementProtocolGuid, NULL, (VOID **)&CcProtocol);
+  DEBUG ((DEBUG_ERROR,  "[%a]DoDeviceCertificate locate protocol failure %r \n", __FUNCTION__, Status));
   if (!EFI_ERROR (Status)) {
     //
     // Try to measure using Cc measurement protocol
@@ -275,6 +276,8 @@ TpmMeasureAndLogData (
                );
 
     if (EFI_ERROR (Status)) {
+       DEBUG ((DEBUG_ERROR,  "[%a]DoDeviceCertificate tpmmeasure gointo 1.2 %r \n", __FUNCTION__, Status));
+
       //
       // Try to measure using Tpm1.2 protocol
       //
@@ -288,6 +291,6 @@ TpmMeasureAndLogData (
                  );
     }
   }
-
+      DEBUG ((DEBUG_ERROR,  "[%a]DoDeviceCertificate tpmmeasure %r \n", __FUNCTION__, Status));
   return Status;
 }

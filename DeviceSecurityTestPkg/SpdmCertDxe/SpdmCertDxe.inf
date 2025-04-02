@@ -1,0 +1,43 @@
+## @file IntelRetimerCompliance.inf
+#
+# Copyright (c) Microsoft Corporation. All rights reserved.
+#
+#  Platform driver for Intel Retimer USB Type-C Compliance Mode. Abstracts
+#  the platform hardware details of getting retimer into compliance mode.
+#
+##
+
+[Defines]
+  INF_VERSION     = 1.27
+  BASE_NAME       = SpdmCertDxe
+  FILE_GUID       = 258961B6-DA4C-48DC-B940-0AAAF88F32C1
+  VERSION_STRING  = 1.0
+  MODULE_TYPE     = DXE_DRIVER
+  ENTRY_POINT     = SpdmCertDxeEntry
+
+[Sources]
+  SpdmCertDxe.c
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  DebugLib
+  BaseLib
+  UefiRuntimeServicesTableLib
+  UefiBootServicesTableLib
+  DebugLib
+  BaseMemoryLib
+  MemoryAllocationLib
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  PtlFamilyPkg/FamilyPkg.dec
+
+[Guids]
+  gEfiDeviceSignatureDatabaseGuid
+  gEfiDeviceSecurityPkgTestConfig
+  gEfiCertX509Guid
+
+[Depex]
+  TRUE
+#   gEdkiiDeviceIdentifierTypePciGuid

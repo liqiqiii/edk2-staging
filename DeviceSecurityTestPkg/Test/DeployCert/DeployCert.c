@@ -22,7 +22,7 @@
 #include <Stub/SpdmLibStub.h>
 #include <industry_standard/spdm.h>
 #include <Library/Tpm2CommandLib.h>
-#include <Library/ShellLib.h>
+// #include <Library/ShellLib.h>
 #include <Library/UefiLib.h>
 #include <Test/TestConfig.h>
 
@@ -93,11 +93,11 @@ extern UINTN  EccTestCertChain3Size;
 extern UINT8  EccTestRootKey3[];
 extern UINTN  EccTestRootKey3Size;
 
-SHELL_PARAM_ITEM  mParamList[] = {
-  { L"-P", TypeFlag  },
-  { L"-T", TypeValue },
-  { NULL,  TypeMax   },
-};
+// SHELL_PARAM_ITEM  mParamList[] = {
+//   { L"-P", TypeFlag  },
+//   { L"-T", TypeValue },
+//   { NULL,  TypeMax   },
+// };
 
 typedef BOOLEAN (EFIAPI *ShaHashAllFunc)(
   CONST VOID  *Data,
@@ -362,8 +362,8 @@ MainEntryPoint (
   //   TestConfig = (UINT8)StrDecimalToUintn (TestConfigName);
   // }
   TestConfig = 16;
-  Print (L"TestConfig - %d\n", TestConfig);
-
+  // Print (L"TestConfig - %d\n", TestConfig);
+  DEBUG ((DEBUG_ERROR, "TestConfig - %d\n", TestConfig));
   Status = gRT->SetVariable (
                   L"SpdmTestConfig",
                   &gEfiDeviceSecurityPkgTestConfig,
