@@ -904,7 +904,7 @@ MainEntryPoint (
   UINTN                ScratchBufferSize;
   UINT8                TestConfig;
   UINTN                TestConfigSize;
-  SPDM_VERSION_NUMBER  SpdmVersion;
+  // SPDM_VERSION_NUMBER  SpdmVersion;
 
 
   mPciDeviceBuffer = AllocateZeroPool (0x1000);
@@ -939,22 +939,22 @@ MainEntryPoint (
   ASSERT (SpdmContext != NULL);
   SpdmInitContext (SpdmContext);
 
-  if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_11) {
-    ZeroMem (&Parameter, sizeof (Parameter));
-    Parameter.location = SpdmDataLocationLocal;
-    SpdmVersion  = SPDM_MESSAGE_VERSION_11 << SPDM_VERSION_NUMBER_SHIFT_BIT;
-    SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
-  } else if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_10) {
-    ZeroMem (&Parameter, sizeof (Parameter));
-    Parameter.location = SpdmDataLocationLocal;
-    SpdmVersion  = SPDM_MESSAGE_VERSION_10 << SPDM_VERSION_NUMBER_SHIFT_BIT;
-    SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
-  }
+  // if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_11) {
+  //   ZeroMem (&Parameter, sizeof (Parameter));
+  //   Parameter.location = SpdmDataLocationLocal;
+  //   SpdmVersion  = SPDM_MESSAGE_VERSION_11 << SPDM_VERSION_NUMBER_SHIFT_BIT;
+  //   SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
+  // } else if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_10) {
+  //   ZeroMem (&Parameter, sizeof (Parameter));
+  //   Parameter.location = SpdmDataLocationLocal;
+  //   SpdmVersion  = SPDM_MESSAGE_VERSION_10 << SPDM_VERSION_NUMBER_SHIFT_BIT;
+  //   SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
+  // }
 
-  // mSpdmTestDeviceContext.SpdmContext = SpdmContext;
+  mSpdmTestDeviceContext.SpdmContext = SpdmContext;
     DEBUG ((DEBUG_INFO, "[PciIoPciDoeStub error get variable3\n"));
   SpdmRegisterDeviceIoFunc (SpdmContext, SpdmDeviceSendMessage, SpdmDeviceReceiveMessage);
-  //  SpdmRegisterTransportLayerFunc (SpdmContext, SPDM_MAX_SPDM_MSG_SIZE, SpdmTransportMctpEncodeMessage, SpdmTransportMctpDecodeMessage);
+  // SpdmRegisterTransportLayerFunc (SpdmContext, SPDM_MAX_SPDM_MSG_SIZE, SpdmTransportMctpEncodeMessage, SpdmTransportMctpDecodeMessage);
   SpdmRegisterTransportLayerFunc (
     SpdmContext,
     SPDM_MAX_SPDM_MSG_SIZE,
@@ -1003,24 +1003,24 @@ MainEntryPoint (
   // }
 
   // Change the PublicCertChain in slot_0, keep the above original PublicCertChain in slot_1.
-  if (TestConfig == TEST_CONFIG_DIFF_CERT_IN_DIFF_SLOT) {
-    Status = GetVariable2 (
-              L"ProvisionSpdmCertChain_2",
-              &gEfiDeviceSecurityPkgTestConfig,
-              &CertChain,
-              &CertChainSize
-              );
-    if (!EFI_ERROR (Status)) {
-      HasRspPubCert = TRUE;
-      Parameter.additional_data[0] = 0;
-      SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
+  // if (TestConfig == TEST_CONFIG_DIFF_CERT_IN_DIFF_SLOT) {
+  //   Status = GetVariable2 (
+  //             L"ProvisionSpdmCertChain_2",
+  //             &gEfiDeviceSecurityPkgTestConfig,
+  //             &CertChain,
+  //             &CertChainSize
+  //             );
+  //   if (!EFI_ERROR (Status)) {
+  //     HasRspPubCert = TRUE;
+  //     Parameter.additional_data[0] = 0;
+  //     SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
 
-      // do not free it
-    } else {
-      HasRspPubCert = FALSE;
-    }
-  }
-  HasRspPubCert = TRUE;
+  //     // do not free it
+  //   } else {
+  //     HasRspPubCert = FALSE;
+  //   }
+  // }
+  HasRspPubCert = FALSE;
   DEBUG ((DEBUG_INFO, "[PciIoPciDoeStub data32 %x\n", HasRspPubCert));
   HasRspPrivKey = TRUE;
     DEBUG ((DEBUG_INFO, "[PciIoPciDoeStub error get variable5\n"));
@@ -1106,7 +1106,7 @@ MainEntryPoint (
   } else {
     Data32 = SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_RSASSA_2048;
   }
-  DEBUG ((DEBUG_INFO, "[PciIoPciDoeStub data32 end %x\n", Data32));
+  // DEBUG ((DEBUG_INFO, "[PciIoPciDoeStub data32 end %x\n", Data32));
   SpdmSetData (SpdmContext, SpdmDataBaseAsymAlgo, &Parameter, &Data32, sizeof (Data32));
   if (TestConfig == TEST_CONFIG_RSASSA_3072_SHA_384) {
     Data32 = SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA_384;

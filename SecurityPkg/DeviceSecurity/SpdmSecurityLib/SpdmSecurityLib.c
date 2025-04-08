@@ -109,7 +109,7 @@ SpdmDeviceAuthenticationAndMeasurement (
       goto Ret;
     }
   }
-
+    DEBUG ((DEBUG_ERROR, "DoDeviceAuthentication started- %r\n", Status));
   if (((SecurityPolicy->AuthenticationPolicy & EDKII_DEVICE_AUTHENTICATION_REQUIRED) != 0) && (IsDeviceAuthBootEnabled ())) {
     DEBUG ((DEBUG_ERROR, "DoDeviceauthentication started- %r\n", Status));
     DEBUG ((DEBUG_ERROR, "DoDeviceCertificate rootcertmatch - 2%d\n", RootCertMatch));
@@ -120,10 +120,11 @@ SpdmDeviceAuthenticationAndMeasurement (
     } else if ((AuthState == TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_NO_SIG) ||
                (AuthState == TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID))
     {
+      DEBUG ((DEBUG_ERROR, "DoDeviceAuthentication started- %r\n", Status));
       goto Ret;
     }
   }
-
+  DEBUG ((DEBUG_ERROR, "DoDeviceMeasurement started- %r\n", Status));
   if ((SecurityPolicy->MeasurementPolicy & EDKII_DEVICE_MEASUREMENT_REQUIRED) != 0) {
     DEBUG ((DEBUG_INFO, "[meausrement Entry0...\n"));
     Status = DoDeviceMeasurement (SpdmDeviceContext, SlotId, SecurityState);
@@ -133,6 +134,7 @@ SpdmDeviceAuthenticationAndMeasurement (
   }
 
 Ret:
+  DEBUG ((DEBUG_ERROR, " DestroySpdmDeviceContext started- %r\n", Status));
   DestroySpdmDeviceContext (SpdmDeviceContext);
 
   return Status;

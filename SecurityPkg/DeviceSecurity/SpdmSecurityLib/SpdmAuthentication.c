@@ -523,7 +523,7 @@ DoDeviceCertificate (
   Parameter.location = SpdmDataLocationConnection;
   DataSize           = sizeof (CapabilityFlags);
   SpdmReturn         = SpdmGetData (SpdmContext, SpdmDataCapabilityFlags, &Parameter, &CapabilityFlags, &DataSize);
-  DEBUG ((DEBUG_INFO, "[PciIoPciDoeStub data32 end %x\n", CapabilityFlags));
+  DEBUG ((DEBUG_INFO, "capability data32 end %x\n", CapabilityFlags));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_ERROR;
     return EFI_DEVICE_ERROR;
@@ -535,7 +535,6 @@ DoDeviceCertificate (
   ZeroMem (CertChain, sizeof (CertChain));
   TrustAnchor     = NULL;
   TrustAnchorSize = 0;
-  CapabilityFlags |= SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
   //
   // Init *ValidSlotId to invalid slot_id
   //
@@ -546,6 +545,7 @@ DoDeviceCertificate (
     *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_NO_SIG;
     SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_NO_CAPABILITIES;
     Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, 0, SecurityState);
+    DEBUG ((DEBUG_ERROR, "do device certificate -2.8 extend certificate\n"));
     return Status;
   } else {
     DEBUG ((DEBUG_ERROR, "do device certificate-3\n"));

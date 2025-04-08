@@ -608,7 +608,7 @@ DeviceAuthentication (
     DeviceSecurityState.MeasurementState    = EDKII_DEVICE_SECURITY_STATE_ERROR_UEFI_GET_POLICY_PROTOCOL;
     DeviceSecurityState.AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_UEFI_GET_POLICY_PROTOCOL;
   } else {
-    DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 2 %r\n"));
+    DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 2 \n"));
       Status = SpdmDeviceAuthenticationAndMeasurement (&SpdmDeviceInfo, &DeviceSecurityPolicy, &DeviceSecurityState);
     DEBUG ((DEBUG_ERROR, "DeviceAuthentication - 2.5 %r\n", Status));
   }
