@@ -463,6 +463,9 @@ MainEntryPoint (
   //
   // Locate PCIe DOE Capability.
   //
+  UINTN Bus, Device, Function, Segment;
+  PciIo->GetLocation(PciIo, &Segment, &Bus, &Device, &Function);
+  DEBUG ((DEBUG_INFO, "PciDevice: Bus: 0x%x, Dev: 0x%x, Func: 0x%x\n", Bus, Device, Function));
   Status = LocatePcieDoeCapStructure (PciIo, &DoeCapOffset);
   if (EFI_ERROR (Status)) {
     return Status;
@@ -476,7 +479,7 @@ MainEntryPoint (
   SpdmPrivateData->DoeCapabilityOffset = DoeCapOffset;
   SpdmPrivateData->PciIo               = PciIo;
 
-  Handle = NULL;
+  // Handle = NULL;
   Status = gBS->InstallProtocolInterface (
                   &Handle,
                   &gSpdmIoProtocolGuid,

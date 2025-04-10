@@ -88,4 +88,6 @@ struct _SPDM_IO_PPI {
   SPDM_IO_SECURE_RECEIVE_MESSAGE_FUNC     ReceiveMessage;
 };
 
+extern EFI_GUID  gSpdmIoProtocolGuid;
+
 #endif

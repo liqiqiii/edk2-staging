@@ -22,30 +22,31 @@ IsDeviceAuthBootEnabled (
   VOID
   )
 {
-  EFI_STATUS  Status;
-  UINT8       *DeviceAuthBootMode;
+  // EFI_STATUS  Status;
+  // UINT8       *DeviceAuthBootMode;
 
-  DeviceAuthBootMode = NULL;
+  // DeviceAuthBootMode = NULL;
 
-  Status = GetEfiGlobalVariable2 (EFI_DEVICE_AUTH_BOOT_MODE_NAME, (VOID **)&DeviceAuthBootMode, NULL);
-  //
-  // Skip verification if DeviceAuthBootMode variable doesn't exist.
-  //
-  if (EFI_ERROR (Status)) {
-    DEBUG ((DEBUG_ERROR, "Cannot check DeviceAuthBootMode variable %r \n ", Status));
-    return FALSE;
-  }
+  // Status = GetEfiGlobalVariable2 (EFI_DEVICE_AUTH_BOOT_MODE_NAME, (VOID **)&DeviceAuthBootMode, NULL);
+  // //
+  // // Skip verification if DeviceAuthBootMode variable doesn't exist.
+  // //
+  // if (EFI_ERROR (Status)) {
+  //   DEBUG ((DEBUG_ERROR, "Cannot check DeviceAuthBootMode variable %r \n ", Status));
+  //   return FALSE;
+  // }
 
-  //
-  // Skip verification if DeviceAuthBootMode is disabled but not AuditMode
-  //
-  if (*DeviceAuthBootMode == DEVICE_AUTH_BOOT_MODE_DISABLE) {
-    FreePool (DeviceAuthBootMode);
-    return FALSE;
-  } else {
-    FreePool (DeviceAuthBootMode);
-    return TRUE;
-  }
+  // //
+  // // Skip verification if DeviceAuthBootMode is disabled but not AuditMode
+  // //
+  // if (*DeviceAuthBootMode == DEVICE_AUTH_BOOT_MODE_DISABLE) {
+  //   FreePool (DeviceAuthBootMode);
+  //   return FALSE;
+  // } else {
+  //   FreePool (DeviceAuthBootMode);
+  //   return TRUE;
+  // }
+  return EFI_SUCCESS;
 }
 
 /**
@@ -74,11 +75,11 @@ SpdmDeviceAuthenticationAndMeasurement (
   BOOLEAN              IsValidCertChain;
   BOOLEAN              RootCertMatch;
 
-  if ((PcdGet32 (PcdTcgPfpMeasurementRevision) < TCG_EfiSpecIDEventStruct_SPEC_ERRATA_TPM2_REV_106) ||
-      (PcdGet8 (PcdEnableSpdmDeviceAuthenticaion) == 0))
-  {
-    return EFI_UNSUPPORTED;
-  }
+  // if ((PcdGet32 (PcdTcgPfpMeasurementRevision) < TCG_EfiSpecIDEventStruct_SPEC_ERRATA_TPM2_REV_106) ||
+  //     (PcdGet8 (PcdEnableSpdmDeviceAuthenticaion) == 0))
+  // {
+  //   return EFI_UNSUPPORTED;
+  // }
 
   SpdmDeviceContext = CreateSpdmDeviceContext (SpdmDeviceInfo, SecurityState);
   if (SpdmDeviceContext == NULL) {

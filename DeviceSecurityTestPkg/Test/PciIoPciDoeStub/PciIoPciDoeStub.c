@@ -117,7 +117,7 @@ typedef struct {
   EFI_DEVICE_PATH         End;
 } TEST_PCI_DEVICE_PATH;
 
-TEST_PCI_DEVICE_PATH  mTestPciDevicePath = { gPciRootBridge (0), gPci (0, 0), gEndEntire };
+// TEST_PCI_DEVICE_PATH  mTestPciDevicePath = { gPciRootBridge (0), gPci (0, 0), gEndEntire };
 
 UINT8  *mPciDeviceBuffer;
 
@@ -925,8 +925,8 @@ MainEntryPoint (
                   &mPciIoHandle,
                   &gEdkiiDeviceIdentifierTypePciGuid,
                   &mPciIoStubInterface,
-                  &gEfiDevicePathProtocolGuid,
-                  (EFI_DEVICE_PATH_PROTOCOL *)&mTestPciDevicePath,
+                  // &gEfiDevicePathProtocolGuid,
+                  // (EFI_DEVICE_PATH_PROTOCOL *)&mTestPciDevicePath,
                   NULL
                   );
   DEBUG ((DEBUG_ERROR, "[PciIoPciDoeStub] InstallProtocolInterface (DeviceIdTypePci & DevicePath) - %r\n", Status));

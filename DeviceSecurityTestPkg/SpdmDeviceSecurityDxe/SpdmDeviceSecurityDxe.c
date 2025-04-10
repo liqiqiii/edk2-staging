@@ -356,9 +356,9 @@ CreateSpdmDriverContext (
   SpdmDriverContext->Signature = SPDM_DRIVER_DEVICE_CONTEXT_SIGNATURE;
   CopyMem (&SpdmDriverContext->DeviceId, DeviceId, sizeof (*DeviceId));
 
-  Status = gBS->HandleProtocol (
-                  DeviceId->DeviceHandle,
+  Status = gBS->LocateProtocol (
                   &gSpdmIoProtocolGuid,
+                  NULL,
                   (VOID **)&SpdmDriverContext->SpdmIoProtocol
                   );
   if (EFI_ERROR (Status)) {

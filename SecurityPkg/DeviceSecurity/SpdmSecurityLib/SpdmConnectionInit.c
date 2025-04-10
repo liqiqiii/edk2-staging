@@ -271,9 +271,9 @@ CreateSpdmDeviceContext (
   }
 
   if (SpdmDeviceInfo->SpdmIoProtocolGuid != NULL) {
-    Status = gBS->HandleProtocol (
-                    SpdmDeviceContext->DeviceId.DeviceHandle,
+    Status = gBS->LocateProtocol (
                     SpdmDeviceInfo->SpdmIoProtocolGuid,
+                    NULL,
                     (VOID **)&SpdmDeviceContext->SpdmIoProtocol
                     );
     if (EFI_ERROR (Status)) {

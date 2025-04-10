@@ -25,8 +25,8 @@
 [LibraryClasses]
   ##  @libraryclass Perform SPDM (following SPDM spec) and measure data to TPM (following TCG PFP spec).
   ##
-  #SpdmSecurityLib|Include/Library/SpdmSecurityLib.h
-
+  SpdmSecurityLib|Include/Library/SpdmSecurityLib.h
+  gEdkiiCertSpdmCertChainGuid = {0xc5a8d010, 0x43f7, 0x4ec4, {0xa0, 0xe9, 0xb2, 0x72, 0x29, 0x58, 0xd3, 0xf8}}
 [Guids]
   gEfiDeviceSecurityPkgTokenSpaceGuid      = { 0x506945e8, 0x7603, 0x49ee, { 0xbf, 0x36, 0x6c, 0x28, 0x74, 0xca, 0x26, 0xdc }}
 
