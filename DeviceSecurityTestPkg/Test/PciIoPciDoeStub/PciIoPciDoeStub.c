@@ -986,28 +986,28 @@ MainEntryPoint (
 
   SpdmSetScratchBuffer (SpdmContext, mScratchBuffer, ScratchBufferSize);
 
-  // Status = GetVariable2 (
-  //            L"ProvisionSpdmCertChain",
-  //            &gEfiDeviceSecurityPkgTestConfig,
-  //            &CertChain,
-  //            &CertChainSize
-  //            );
-  // if (!EFI_ERROR (Status)) {
-  //   HasRspPubCert = TRUE;
-  //   // BUGBUG: Assume only 1 SPDM cert.
+  Status = GetVariable2 (
+             L"ProvisionSpdmCertChain",
+             &gEfiDeviceSecurityPkgTestConfig,
+             &CertChain,
+             &CertChainSize
+             );
+  if (!EFI_ERROR (Status)) {
+    HasRspPubCert = TRUE;
+    // BUGBUG: Assume only 1 SPDM cert.
 
     ZeroMem (&Parameter, sizeof (Parameter));
     Parameter.location = SpdmDataLocationLocal;
 
-  //   for (Index = 0; Index < SLOT_NUMBER; Index++) {
-  //     Parameter.additional_data[0] = Index;
-  //     SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
-  //   }
+    for (Index = 0; Index < SLOT_NUMBER; Index++) {
+      Parameter.additional_data[0] = Index;
+      SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
+    }
 
-  //   // do not free it
-  // } else {
-  //   HasRspPubCert = FALSE;
-  // }
+    // do not free it
+  } else {
+    HasRspPubCert = FALSE;
+  }
 
   // Change the PublicCertChain in slot_0, keep the above original PublicCertChain in slot_1.
   // if (TestConfig == TEST_CONFIG_DIFF_CERT_IN_DIFF_SLOT) {
@@ -1051,10 +1051,10 @@ MainEntryPoint (
           //  SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP |
            0;
   // if (!HasRspPubCert) {
-  //   Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
+    Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
   // } else {
-    Data32 |= SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
-  // }
+    // Data32 |= SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
+  }
 
   if (!HasRspPrivKey) {
     Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHAL_CAP;

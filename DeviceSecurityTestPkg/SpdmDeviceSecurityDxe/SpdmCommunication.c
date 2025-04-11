@@ -179,12 +179,14 @@ SpdmProtocolGetCertificate (
 
   SpdmDriverDeviceContext = GetSpdmDriverContextViaSpdmProtocol (This);
   if (SpdmDriverDeviceContext == NULL) {
+    DEBUG((DEBUG_ERROR, "SpdmProtocolGetCertificate - SpdmDriverDeviceContext == NULL\n"));
     return EFI_UNSUPPORTED;
   }
 
   SpdmContext = SpdmDriverDeviceContext->SpdmContext;
 
   SpdmReturn = SpdmGetCertificate (SpdmContext, NULL, SlotNum, CertChainSize, CertChain);
+  DEBUG((DEBUG_INFO, "SpdmProtocolGetCertificate - SpdmReturn - 0x%r\n", SpdmReturn));
   if (LIBSPDM_STATUS_IS_SUCCESS (SpdmReturn)) {
     return EFI_SUCCESS;
   } else {

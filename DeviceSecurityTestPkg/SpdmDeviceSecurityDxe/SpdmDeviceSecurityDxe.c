@@ -128,20 +128,22 @@ GetSpdmDriverContextViaSpdmProtocol (
   LIST_ENTRY            *Link;
   SPDM_DEVICE_INSTANCE  *CurrentSpdmDevice;
   LIST_ENTRY            *SpdmDeviceList;
-
+  DEBUG((DEBUG_INFO, "GetSpdmDriverContextViaSpdmProtocol - SpdmProtocol - %p\n", SpdmProtocol));
   SpdmDeviceList = &mSpdmDeviceList;
 
   Link = GetFirstNode (SpdmDeviceList);
+  DEBUG((DEBUG_INFO, "GetSpdmDriverContextViaSpdmProtocol - Link - %p\n", Link));
   while (!IsNull (SpdmDeviceList, Link)) {
     CurrentSpdmDevice = SPDM_DEVICE_INSTANCE_FROM_LINK (Link);
-
+    DEBUG((DEBUG_INFO, "GetSpdmDriverContextViaSpdmProtocol - CurrentSpdmDevice - %p\n", CurrentSpdmDevice));
     if (CurrentSpdmDevice->SpdmDriverContext->SpdmProtocol == SpdmProtocol) {
+      DEBUG((DEBUG_INFO, "GetSpdmDriverContextViaSpdmProtocol - CurrentSpdmDevice->SpdmDriverContext - %p\n", CurrentSpdmDevice->SpdmDriverContext));
       return CurrentSpdmDevice->SpdmDriverContext;
     }
 
     Link = GetNextNode (SpdmDeviceList, Link);
   }
-
+  DEBUG((DEBUG_INFO, "GetSpdmDriverContextViaSpdmProtocol - Link - %p\n", Link));
   return NULL;
 }
 
@@ -368,9 +370,9 @@ CreateSpdmDriverContext (
     goto Error;
   }
 
-  Status = gBS->HandleProtocol (
-                  DeviceId->DeviceHandle,
+  Status = gBS->LocateProtocol (
                   &gSpdmProtocolGuid,
+                  NULL,
                   (VOID **)&SpdmDriverContext->SpdmProtocol
                   );
   if (EFI_ERROR (Status)) {
@@ -409,7 +411,7 @@ CreateSpdmDriverContext (
       goto Error;
     }
   }
-
+  DEBUG((DEBUG_INFO, "RecordSpdmDeviceInList started \n"));
   //
   // Record list before any transaction
   //
@@ -476,7 +478,7 @@ CreateSpdmDriverContext (
 
   SpdmReturn = SpdmInitConnection (SpdmContext, FALSE);
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
-    DEBUG ((DEBUG_ERROR, "SpdmInitConnection - %p\n", SpdmReturn));
+    DEBUG ((DEBUG_ERROR, "SpdmInitConnection - %r\n", SpdmReturn));
     goto Error;
   }
 
@@ -570,9 +572,9 @@ DeviceAuthentication (
 {
   EDKII_DEVICE_SECURITY_POLICY  DeviceSecurityPolicy;
   EDKII_DEVICE_SECURITY_STATE   DeviceSecurityState;
-#if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP) || (LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
+// #if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP) || (LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
   SPDM_DRIVER_DEVICE_CONTEXT    *SpdmDriverContext;
-#endif
+// #endif
   EFI_STATUS                    Status;
   EDKII_SPDM_DEVICE_INFO        SpdmDeviceInfo;
 
@@ -604,8 +606,18 @@ DeviceAuthentication (
   DeviceSecurityState.MeasurementState    = 0x0;
   DeviceSecurityState.AuthenticationState = 0x0;
 
-  UINTN                CertChainSize = 0;
-  VOID                 *CertChainBuffer = NULL;
+  SpdmDriverContext = GetSpdmDriverContextViaDeviceId (DeviceId);
+  if (SpdmDriverContext == NULL) {
+    SpdmDriverContext = CreateSpdmDriverContext (DeviceId);
+    DEBUG ((DEBUG_ERROR, "CreateSpdmDriverContext - %x\n", SpdmDriverContext));
+  }
+
+  if (SpdmDriverContext == NULL) {
+    return EFI_UNSUPPORTED;
+  }
+
+  UINTN                CertChainSize;
+  VOID                 *CertChainBuffer;
   SPDM_DATA_PARAMETER  Parameter;
   UINT8                Index;
   SPDM_PROTOCOL        *SpdmProtocol;
@@ -615,8 +627,13 @@ DeviceAuthentication (
     DEBUG ((DEBUG_ERROR, "LocateProtocol failed - %r\n", Status));
     return Status;
   }
+  CertChainSize = SPDM_MAX_SPDM_MSG_SIZE;
+  CertChainBuffer = AllocateZeroPool(CertChainSize);
+  if (CertChainBuffer == NULL) {
+    DEBUG ((DEBUG_ERROR, "AllocateZeroPool failed\n"));
+    return EFI_OUT_OF_RESOURCES;
+  }
 
-  ZeroMem (CertChainBuffer, sizeof(CertChainBuffer));
   Status = SpdmProtocol->GetCertificate(SpdmProtocol, 0, &CertChainSize, CertChainBuffer);
   DEBUG((DEBUG_ERROR, "CertChainSize: %d\n", CertChainSize));
   DEBUG((DEBUG_ERROR, "CertChainBuffer: %p\n", CertChainBuffer));
@@ -668,17 +685,9 @@ DeviceAuthentication (
     DEBUG ((DEBUG_ERROR, "mDeviceSecurityPolicy->NotifyDeviceState - %r\n", Status));
   }
 
-#if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP) || (LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
-  SpdmDriverContext = GetSpdmDriverContextViaDeviceId (DeviceId);
-  if (SpdmDriverContext == NULL) {
-    SpdmDriverContext = CreateSpdmDriverContext (DeviceId);
-    DEBUG ((DEBUG_ERROR, "CreateSpdmDriverContext - %r\n", Status));
-  }
+// #if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP) || (LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
 
-  if (SpdmDriverContext == NULL) {
-    return EFI_UNSUPPORTED;
-  }
-#endif
+// #endif
 
   if ((DeviceSecurityState.MeasurementState == 0) &&
       (DeviceSecurityState.AuthenticationState == 0))
