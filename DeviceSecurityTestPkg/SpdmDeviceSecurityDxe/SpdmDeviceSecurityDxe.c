@@ -9,6 +9,7 @@ SPDX-License-Identifier: BSD-2-Clause-Patent
 
 #include "SpdmDeviceSecurityDxe.h"
 #include "Library/SpdmSecurityLib.h"
+#include <Protocol/SpdmContext.h>
 
 LIST_ENTRY  mSpdmDeviceList = INITIALIZE_LIST_HEAD_VARIABLE (mSpdmDeviceList);
 
@@ -18,6 +19,7 @@ BOOLEAN  mSendReceiveBufferAcquired = FALSE;
 UINT8    mSendReceiveBuffer[SPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 UINTN    mSendReceiveBufferSize;
 VOID     *mScratchBuffer;
+#define SLOT_NUMBER  2
 
 /**
   Compare two device paths to check if they are exactly same.
@@ -428,10 +430,10 @@ CreateSpdmDriverContext (
            SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_EX_CAP |
 #endif
            //           SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PSK_CAP_REQUESTER |
-           //           SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCAP_CAP |
+                     SPDM_GET_CAPABILITIES_REQUEST_FLAGS_ENCAP_CAP |
            SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HBEAT_CAP |
            //           SPDM_GET_CAPABILITIES_REQUEST_FLAGS_KEY_UPD_CAP |
-           //           SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HANDSHAKE_IN_THE_CLEAR_CAP |
+                     SPDM_GET_CAPABILITIES_REQUEST_FLAGS_HANDSHAKE_IN_THE_CLEAR_CAP |
            //           SPDM_GET_CAPABILITIES_REQUEST_FLAGS_PUB_KEY_ID_CAP |
            0;
 
@@ -602,6 +604,56 @@ DeviceAuthentication (
   DeviceSecurityState.MeasurementState    = 0x0;
   DeviceSecurityState.AuthenticationState = 0x0;
 
+  UINTN                CertChainSize = 0;
+  VOID                 *CertChainBuffer = NULL;
+  SPDM_DATA_PARAMETER  Parameter;
+  UINT8                Index;
+  SPDM_PROTOCOL        *SpdmProtocol;
+  SPDM_CONTEXT_PROTOCOL *SpdmContextProtocol;
+  Status = gBS->LocateProtocol(&gSpdmProtocolGuid, NULL, (VOID **)&SpdmProtocol);
+  if (EFI_ERROR(Status)) {
+    DEBUG ((DEBUG_ERROR, "LocateProtocol failed - %r\n", Status));
+    return Status;
+  }
+
+  ZeroMem (CertChainBuffer, sizeof(CertChainBuffer));
+  Status = SpdmProtocol->GetCertificate(SpdmProtocol, 0, &CertChainSize, CertChainBuffer);
+  DEBUG((DEBUG_ERROR, "CertChainSize: %d\n", CertChainSize));
+  DEBUG((DEBUG_ERROR, "CertChainBuffer: %p\n", CertChainBuffer));
+  if (EFI_ERROR(Status)) {
+    DEBUG ((DEBUG_ERROR, "Failed to get certificate chain: %r\n", Status));
+    FreePool(CertChainBuffer);
+    return Status;
+  }
+
+
+    Status = gBS->LocateProtocol (
+                    &gSpdmContextProtocolGuid,
+                    NULL,
+                    (VOID **)&SpdmContextProtocol
+                    );
+    if (EFI_ERROR (Status)) {
+      DEBUG ((DEBUG_ERROR, "Failed to locate SPDM Context Protocol - %r\n", Status));
+      return Status;
+    }
+
+
+  VOID *SpdmContext = SpdmContextProtocol->SpdmContext;
+
+  if (!EFI_ERROR (Status)) {
+    // HasRspPubCert = TRUE;
+    // BUGBUG: Assume only 1 SPDM cert.
+
+    ZeroMem (&Parameter, sizeof (Parameter));
+    Parameter.location = SpdmDataLocationLocal;
+
+    for (Index = 0; Index < SLOT_NUMBER; Index++) {
+      Parameter.additional_data[0] = Index;
+      SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChainBuffer, CertChainSize);
+      DEBUG((DEBUG_ERROR, "SpdmSetData correctly set\n"));
+    }
+  }
+
   Status = mDeviceSecurityPolicy->GetDevicePolicy (mDeviceSecurityPolicy, DeviceId, &DeviceSecurityPolicy);
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "mDeviceSecurityPolicy->GetDevicePolicy - %r\n", Status));
@@ -620,6 +672,7 @@ DeviceAuthentication (
   SpdmDriverContext = GetSpdmDriverContextViaDeviceId (DeviceId);
   if (SpdmDriverContext == NULL) {
     SpdmDriverContext = CreateSpdmDriverContext (DeviceId);
+    DEBUG ((DEBUG_ERROR, "CreateSpdmDriverContext - %r\n", Status));
   }
 
   if (SpdmDriverContext == NULL) {

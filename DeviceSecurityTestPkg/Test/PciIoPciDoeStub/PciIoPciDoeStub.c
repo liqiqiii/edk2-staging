@@ -26,6 +26,10 @@
 #include <Protocol/SpdmIo.h>
 #include <Protocol/SpdmTest.h>
 #include <Test/TestConfig.h>
+#include <industry_standard/pcidoe.h>
+#include <IndustryStandard/Pci.h>
+// #include <IndustryStandard/SpdmDoe.h>
+#include <Protocol/SpdmContext.h>
 
 SPDM_TEST_DEVICE_CONTEXT  mSpdmTestDeviceContext = {
   SPDM_TEST_DEVICE_CONTEXT_SIGNATURE,
@@ -890,20 +894,24 @@ MainEntryPoint (
   )
 {
   EFI_STATUS           Status;
-  UINT8                Index;
-  VOID                 *CertChain;
-  UINTN                CertChainSize;
+  // UINT8                Index;
+  // VOID                 *CertChainBuffer;
+  // VOID                 *CertChain;
+  // UINTN                CertChainSize;
   VOID                 *SpdmContext;
   SPDM_DATA_PARAMETER  Parameter;
   UINT8                Data8;
   UINT16               Data16;
   UINT32               Data32;
-  BOOLEAN              HasRspPubCert;
+  // BOOLEAN              HasRspPubCert;
   BOOLEAN              HasRspPrivKey;
   UINTN                ScratchBufferSize;
   UINT8                TestConfig;
   UINTN                TestConfigSize;
-  SPDM_VERSION_NUMBER  SpdmVersion;
+  //   UINTN transport_message_size;
+  //   VOID *transport_message;
+  // pci_doe_discovery_request_t   DoeRequest;
+  // SPDM_VERSION_NUMBER  SpdmVersion;
 
   TestConfigSize = sizeof (UINT8);
   Status         = gRT->GetVariable (
@@ -938,17 +946,17 @@ MainEntryPoint (
   ASSERT (SpdmContext != NULL);
   SpdmInitContext (SpdmContext);
 
-  if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_11) {
-    ZeroMem (&Parameter, sizeof (Parameter));
-    Parameter.location = SpdmDataLocationLocal;
-    SpdmVersion  = SPDM_MESSAGE_VERSION_11 << SPDM_VERSION_NUMBER_SHIFT_BIT;
-    SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
-  } else if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_10) {
-    ZeroMem (&Parameter, sizeof (Parameter));
-    Parameter.location = SpdmDataLocationLocal;
-    SpdmVersion  = SPDM_MESSAGE_VERSION_10 << SPDM_VERSION_NUMBER_SHIFT_BIT;
-    SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
-  }
+  // if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_11) {
+  //   ZeroMem (&Parameter, sizeof (Parameter));
+  //   Parameter.location = SpdmDataLocationLocal;
+  //   SpdmVersion  = SPDM_MESSAGE_VERSION_11 << SPDM_VERSION_NUMBER_SHIFT_BIT;
+  //   SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
+  // } else if (TestConfig == TEST_CONFIG_SPDM_MESSAGE_VERSION_10) {
+  //   ZeroMem (&Parameter, sizeof (Parameter));
+  //   Parameter.location = SpdmDataLocationLocal;
+  //   SpdmVersion  = SPDM_MESSAGE_VERSION_10 << SPDM_VERSION_NUMBER_SHIFT_BIT;
+  //   SpdmSetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &SpdmVersion, sizeof (SpdmVersion));
+  // }
 
   mSpdmTestDeviceContext.SpdmContext = SpdmContext;
 
@@ -978,47 +986,47 @@ MainEntryPoint (
 
   SpdmSetScratchBuffer (SpdmContext, mScratchBuffer, ScratchBufferSize);
 
-  Status = GetVariable2 (
-             L"ProvisionSpdmCertChain",
-             &gEfiDeviceSecurityPkgTestConfig,
-             &CertChain,
-             &CertChainSize
-             );
-  if (!EFI_ERROR (Status)) {
-    HasRspPubCert = TRUE;
-    // BUGBUG: Assume only 1 SPDM cert.
+  // Status = GetVariable2 (
+  //            L"ProvisionSpdmCertChain",
+  //            &gEfiDeviceSecurityPkgTestConfig,
+  //            &CertChain,
+  //            &CertChainSize
+  //            );
+  // if (!EFI_ERROR (Status)) {
+  //   HasRspPubCert = TRUE;
+  //   // BUGBUG: Assume only 1 SPDM cert.
 
     ZeroMem (&Parameter, sizeof (Parameter));
     Parameter.location = SpdmDataLocationLocal;
 
-    for (Index = 0; Index < SLOT_NUMBER; Index++) {
-      Parameter.additional_data[0] = Index;
-      SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
-    }
+  //   for (Index = 0; Index < SLOT_NUMBER; Index++) {
+  //     Parameter.additional_data[0] = Index;
+  //     SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
+  //   }
 
-    // do not free it
-  } else {
-    HasRspPubCert = FALSE;
-  }
+  //   // do not free it
+  // } else {
+  //   HasRspPubCert = FALSE;
+  // }
 
   // Change the PublicCertChain in slot_0, keep the above original PublicCertChain in slot_1.
-  if (TestConfig == TEST_CONFIG_DIFF_CERT_IN_DIFF_SLOT) {
-    Status = GetVariable2 (
-              L"ProvisionSpdmCertChain_2",
-              &gEfiDeviceSecurityPkgTestConfig,
-              &CertChain,
-              &CertChainSize
-              );
-    if (!EFI_ERROR (Status)) {
-      HasRspPubCert = TRUE;
-      Parameter.additional_data[0] = 0;
-      SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
+  // if (TestConfig == TEST_CONFIG_DIFF_CERT_IN_DIFF_SLOT) {
+  //   Status = GetVariable2 (
+  //             L"ProvisionSpdmCertChain_2",
+  //             &gEfiDeviceSecurityPkgTestConfig,
+  //             &CertChain,
+  //             &CertChainSize
+  //             );
+  //   if (!EFI_ERROR (Status)) {
+  //     HasRspPubCert = TRUE;
+  //     Parameter.additional_data[0] = 0;
+  //     SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
 
-      // do not free it
-    } else {
-      HasRspPubCert = FALSE;
-    }
-  }
+  //     // do not free it
+  //   } else {
+  //     HasRspPubCert = FALSE;
+  //   }
+  // }
 
   HasRspPrivKey = TRUE;
 
@@ -1034,19 +1042,19 @@ MainEntryPoint (
 #endif
            //           SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PSK_CAP_RESPONDER |
            //           SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PSK_CAP_RESPONDER_WITH_CONTEXT |
-           //           SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ENCAP_CAP |
+                     SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_ENCAP_CAP |
            //           SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_HBEAT_CAP |
            //           SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_KEY_UPD_CAP |
 #if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP) || (LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
            SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_HANDSHAKE_IN_THE_CLEAR_CAP |
 #endif
-           //           SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP |
+          //  SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP |
            0;
-  if (!HasRspPubCert) {
-    Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
-  } else {
+  // if (!HasRspPubCert) {
+  //   Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
+  // } else {
     Data32 |= SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
-  }
+  // }
 
   if (!HasRspPrivKey) {
     Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHAL_CAP;
@@ -1144,6 +1152,78 @@ MainEntryPoint (
   Data8 = 0x3F;
   SpdmSetData (SpdmContext, SpdmDataLocalSupportedSlotMask, &Parameter, &Data8, sizeof (Data8));
 
+//   DEBUG ((DEBUG_INFO, "Starting DOE discovery and certificate retrieval\n"));
+
+//   // Step 3: Perform DOE Discovery
+//   ZeroMem (&DoeRequest, sizeof(DoeRequest));
+//   DoeRequest.index = 0;
+
+//   Status = libspdm_pci_doe_encode_discovery(
+//              sizeof(DoeRequest),
+//              &DoeRequest,
+//              &transport_message_size,
+//              &transport_message
+//              );
+//   if (EFI_ERROR(Status)) {
+//     DEBUG ((DEBUG_ERROR, "Failed to encode DOE discovery message: %r\n", Status));
+//     return Status;
+//   }
+
+//   Status = SpdmDeviceSendMessage(
+//              mSpdmContext,
+//              &transport_message_size,
+//              &transport_message,
+//              5000
+//              );
+//   if (EFI_ERROR(Status)) {
+//     DEBUG ((DEBUG_ERROR, "Failed to send DOE discovery message: %r\n", Status));
+//     return Status;
+//   }
+//   size_t MAX_SPDM_CERT_CHAIN_SIZE = 9600;
+//   // Step 4: Get Certificate Chain
+//   // Allocate buffer for certificate chain
+//   CertChainSize = MAX_SPDM_CERT_CHAIN_SIZE;
+//   CertChainBuffer = AllocateZeroPool(CertChainSize);
+//   if (CertChainBuffer == NULL) {
+//     return EFI_OUT_OF_RESOURCES;
+//   }
+
+//   // Status = SpdmGetCertificate(
+//   //            mSpdmContext,
+//   //            0,  // slot_id
+//   //            &CertChainSize,
+//   //            CertChainBuffer
+//   //            );
+
+// Status = SpdmGetCertificate (mSpdmContext, NULL, 0, CertChainSize, CertChainBuffer);
+
+//   if (EFI_ERROR(Status)) {
+//     DEBUG ((DEBUG_ERROR, "Failed to get certificate chain: %r\n", Status));
+//     FreePool(CertChainBuffer);
+//     return Status;
+//   }
+
+//   if (!EFI_ERROR (Status)) {
+//     HasRspPubCert = TRUE;
+//     // BUGBUG: Assume only 1 SPDM cert.
+
+//     ZeroMem (&Parameter, sizeof (Parameter));
+//     Parameter.location = SpdmDataLocationLocal;
+
+//     for (Index = 0; Index < SLOT_NUMBER; Index++) {
+//       Parameter.additional_data[0] = Index;
+//       SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChainBuffer, CertChainSize);
+//     }
+//   }
+SPDM_CONTEXT_PROTOCOL  mSpdmContextProtocol;
+mSpdmContextProtocol.SpdmContext = mSpdmContext;
+  
+  Status = gBS->InstallMultipleProtocolInterfaces (
+                  &ImageHandle,
+                  &gSpdmContextProtocolGuid,
+                  &mSpdmContextProtocol,
+                  NULL
+                  );
   InitializeSpdmTest (&mSpdmTestDeviceContext);
 
   return Status;

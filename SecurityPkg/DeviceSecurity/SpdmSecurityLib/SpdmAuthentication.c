@@ -541,6 +541,7 @@ DoDeviceCertificate (
   *ValidSlotId = SPDM_MAX_SLOT_COUNT;
 
   if ((CapabilityFlags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP) == 0) {
+    DEBUG((DEBUG_INFO, "DoDeviceCertificate - No Cert Cap\n"));
     *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_NO_SIG;
     SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_NO_CAPABILITIES;
     Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, 0, SecurityState);

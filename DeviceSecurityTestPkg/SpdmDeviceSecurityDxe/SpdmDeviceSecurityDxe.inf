@@ -51,7 +51,7 @@
 [Guids]
   gEfiDeviceSignatureDatabaseGuid       ## CONSUMES
   gEfiDeviceSecurityPkgTestConfig         ## CONSUMES
-
+  gSpdmContextProtocolGuid
 [Protocols]
   gEdkiiDeviceSecurityProtocolGuid        ## PRODUCES
   gSpdmProtocolGuid                  ## PRODUCES

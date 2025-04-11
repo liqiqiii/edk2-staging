@@ -45,7 +45,7 @@
   
 [Guids]
   gEfiDeviceSignatureDatabaseGuid  ## CONSUMES
-
+  gSpdmContextProtocolGuid
 [Protocols]
   gEdkiiDeviceIdentifierTypePciGuid  ## PRODUCES
   gEfiDevicePathProtocolGuid         ## PRODUCES
