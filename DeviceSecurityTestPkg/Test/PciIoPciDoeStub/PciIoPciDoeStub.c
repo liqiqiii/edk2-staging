@@ -225,68 +225,69 @@ PciIoStubConfigRead (
   IN OUT VOID                       *Buffer
   )
 {
-  UINTN  Size;
+  // UINTN  Size;
 
-  switch (Width) {
-    case EfiPciIoWidthUint8:
-      Size = sizeof (UINT8);
-      break;
-    case EfiPciIoWidthUint16:
-      Size = sizeof (UINT16);
-      break;
-    case EfiPciIoWidthUint32:
-      Size = sizeof (UINT32);
-      break;
-    case EfiPciIoWidthUint64:
-      Size = sizeof (UINT64);
-      break;
-    default:
-      ASSERT (FALSE);
-      return EFI_UNSUPPORTED;
-  }
+  // switch (Width) {
+  //   case EfiPciIoWidthUint8:
+  //     Size = sizeof (UINT8);
+  //     break;
+  //   case EfiPciIoWidthUint16:
+  //     Size = sizeof (UINT16);
+  //     break;
+  //   case EfiPciIoWidthUint32:
+  //     Size = sizeof (UINT32);
+  //     break;
+  //   case EfiPciIoWidthUint64:
+  //     Size = sizeof (UINT64);
+  //     break;
+  //   default:
+  //     ASSERT (FALSE);
+  //     return EFI_UNSUPPORTED;
+  // }
 
-  if (Offset >= 0x1000) {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
-  }
+  // if (Offset >= 0x1000) {
+  //   ASSERT (FALSE);
+  //   return EFI_UNSUPPORTED;
+  // }
 
-  if (Count >= (0x1000 - Offset)/Size) {
-    ASSERT (FALSE);
-    return EFI_UNSUPPORTED;
-  }
+  // if (Count >= (0x1000 - Offset)/Size) {
+  //   ASSERT (FALSE);
+  //   return EFI_UNSUPPORTED;
+  // }
 
-  if (Offset == SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_READ_DATA_MAILBOX_OFFSET) {
-    //
-    // Get data from mResponseDataBuffer.
-    //
-    if (mResponseDataReadIndex + Size * Count > sizeof (mResponseDataBuffer)) {
-      return EFI_DEVICE_ERROR;
-    }
+  // if (Offset == SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_READ_DATA_MAILBOX_OFFSET) {
+  //   //
+  //   // Get data from mResponseDataBuffer.
+  //   //
+  //   if (mResponseDataReadIndex + Size * Count > sizeof (mResponseDataBuffer)) {
+  //     return EFI_DEVICE_ERROR;
+  //   }
 
-    CopyMem ((UINT8 *)Buffer, mResponseDataBufferPtr + mResponseDataReadIndex, Size * Count);
-    mResponseDataReadIndex += Size * Count;
+  //   CopyMem ((UINT8 *)Buffer, mResponseDataBufferPtr + mResponseDataReadIndex, Size * Count);
+  //   mResponseDataReadIndex += Size * Count;
 
-    if (mResponseDataReadIndex >= mResponseDataSize) {
-      DEBUG ((DEBUG_ERROR, " [PciIoCfg] Read response data is complete!\n"));
+  //   if (mResponseDataReadIndex >= mResponseDataSize) {
+  //     DEBUG ((DEBUG_ERROR, " [PciIoCfg] Read response data is complete!\n"));
 
-      //
-      // Simulate clearing "Data Object Ready" bit.
-      //
-      DEBUG ((DEBUG_ERROR, " [PciIoCfg] Simulate clearing 'Data Object Ready' bit.\n"));
-      *(UINT32 *)(mPciDeviceBuffer + SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_STATUS_OFFSET) = 0;
+  //     //
+  //     // Simulate clearing "Data Object Ready" bit.
+  //     //
+  //     DEBUG ((DEBUG_ERROR, " [PciIoCfg] Simulate clearing 'Data Object Ready' bit.\n"));
+  //     *(UINT32 *)(mPciDeviceBuffer + SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_STATUS_OFFSET) = 0;
 
-      //
-      // Reset the points and index.
-      //
-      ZeroMem (mResponseDataBuffer, sizeof (mResponseDataBuffer));
-      mResponseDataReadIndex = 0;
-      mResponseDataSize      = 0;
-    }
-  } else {
-    CopyMem (Buffer, mPciDeviceBuffer + Offset, Size * Count);
-  }
+  //     //
+  //     // Reset the points and index.
+  //     //
+  //     ZeroMem (mResponseDataBuffer, sizeof (mResponseDataBuffer));
+  //     mResponseDataReadIndex = 0;
+  //     mResponseDataSize      = 0;
+  //   }
+  // } else {
+  //   CopyMem (Buffer, mPciDeviceBuffer + Offset, Size * Count);
+  // }
 
-  return EFI_SUCCESS;
+  // return EFI_SUCCESS;
+  
 }
 
 EFI_STATUS
@@ -491,10 +492,19 @@ PciIoStubGetLocation (
   OUT UINTN                *Function
   )
 {
-  *Segment  = 0;
-  *Bus      = 0;
-  *Device   = 0;
-  *Function = 0;
+  PCI_IO_DEVICE  *PciIoDevice;
+
+  PciIoDevice = PCI_IO_DEVICE_FROM_PCI_IO_THIS (This);
+
+  if ((Segment == NULL) || (Bus == NULL) || (Device == NULL) || (Function == NULL)) {
+    return EFI_INVALID_PARAMETER;
+  }
+
+  *Segment  = PciIoDevice->PciRootBridgeIo->SegmentNumber;
+  *Bus      = PciIoDevice->BusNumber;
+  *Device   = PciIoDevice->DeviceNumber;
+  *Function = PciIoDevice->FunctionNumber;
+
   return EFI_SUCCESS;
 }
 
@@ -890,11 +900,12 @@ MainEntryPoint (
   )
 {
   EFI_STATUS           Status;
-  UINT8                Index;
+  // UINT8                Index;
   VOID                 *CertChain;
   UINTN                CertChainSize;
   VOID                 *SpdmContext;
   SPDM_DATA_PARAMETER  Parameter;
+  SPDM_DATA_PARAMETER  Parameter2;
   UINT8                Data8;
   UINT16               Data16;
   UINT32               Data32;
@@ -978,28 +989,28 @@ MainEntryPoint (
 
   SpdmSetScratchBuffer (SpdmContext, mScratchBuffer, ScratchBufferSize);
 
-  Status = GetVariable2 (
-             L"ProvisionSpdmCertChain",
-             &gEfiDeviceSecurityPkgTestConfig,
-             &CertChain,
-             &CertChainSize
-             );
-  if (!EFI_ERROR (Status)) {
-    HasRspPubCert = TRUE;
-    // BUGBUG: Assume only 1 SPDM cert.
+  // Status = GetVariable2 (
+  //            L"ProvisionSpdmCertChain",
+  //            &gEfiDeviceSecurityPkgTestConfig,
+  //            &CertChain,
+  //            &CertChainSize
+  //            );
+  // if (!EFI_ERROR (Status)) {
+  //   HasRspPubCert = TRUE;
+  //   // BUGBUG: Assume only 1 SPDM cert.
 
     ZeroMem (&Parameter, sizeof (Parameter));
     Parameter.location = SpdmDataLocationLocal;
 
-    for (Index = 0; Index < SLOT_NUMBER; Index++) {
-      Parameter.additional_data[0] = Index;
-      SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
-    }
+  //   for (Index = 0; Index < SLOT_NUMBER; Index++) {
+  //     Parameter.additional_data[0] = Index;
+  //     SpdmSetData (SpdmContext, SpdmDataLocalPublicCertChain, &Parameter, CertChain, CertChainSize);
+  //   }
 
-    // do not free it
-  } else {
-    HasRspPubCert = FALSE;
-  }
+  //   // do not free it
+  // } else {
+  //   HasRspPubCert = FALSE;
+  // }
 
   // Change the PublicCertChain in slot_0, keep the above original PublicCertChain in slot_1.
   if (TestConfig == TEST_CONFIG_DIFF_CERT_IN_DIFF_SLOT) {
@@ -1042,11 +1053,11 @@ MainEntryPoint (
 #endif
            //           SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_PUB_KEY_ID_CAP |
            0;
-  if (!HasRspPubCert) {
-    Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
-  } else {
+  // if (!HasRspPubCert) {
+    // Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
+  // } else {
     Data32 |= SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CERT_CAP;
-  }
+  // }
 
   if (!HasRspPrivKey) {
     Data32 &= ~SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_CHAL_CAP;
@@ -1074,6 +1085,11 @@ MainEntryPoint (
   }
 
   SpdmSetData (SpdmContext, SpdmDataCapabilityFlags, &Parameter, &Data32, sizeof (Data32));
+
+
+  ZeroMem (&Parameter2, sizeof (Parameter2));
+  Parameter2.location = SpdmDataLocationLocal;
+  SpdmSetData (SpdmContext, SpdmDataCapabilityFlags, &Parameter2, &Data32, sizeof (Data32));
 
   if ((TestConfig == TEST_CONFIG_NO_MEAS_CAP) || (TestConfig == TEST_CONFIG_NO_CERT_CAP)) {
     Data8 = 0;

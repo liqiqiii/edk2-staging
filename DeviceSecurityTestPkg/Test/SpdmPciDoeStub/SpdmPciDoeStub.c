@@ -47,6 +47,14 @@ LocatePcieDoeCapStructure (
   UINT16      ExtendedCapPtr;
   UINT32      ExtendedCapHeader;
 
+  // At the start of LocatePcieDoeCapStructure
+  UINT16 VendorId;
+  UINT16 DeviceId;
+  Status = PciIo->Pci.Read (PciIo, EfiPciIoWidthUint16, 0, 1, &VendorId);
+  Status |= PciIo->Pci.Read (PciIo, EfiPciIoWidthUint16, 2, 1, &DeviceId);
+  DEBUG ((DEBUG_INFO, "Checking DOE for PCI Device: VendorID=0x%04x, DeviceID=0x%04x\n", 
+          VendorId, DeviceId));
+
   //
   // Locate Pcie Capability structure
   //
@@ -108,9 +116,26 @@ LocatePcieDoeCapStructure (
       break;
     }
 
+    DEBUG ((DEBUG_INFO, "Found Extended Capability ID: 0x%04x at offset: 0x%x\n", 
+      (UINT16)ExtendedCapHeader, ExtendedCapPtr));
+
     if ((UINT16)ExtendedCapHeader == PCI_EXPRESS_EXTENDED_CAPABILITY_DOE_ID) {
-      *Offset = ExtendedCapPtr;
-      break;
+      PCI_EXPRESS_EXTENDED_CAPABILITIES_DOE  DoeCapability;
+      Status = PciIo->Pci.Read (
+                          PciIo,
+                          EfiPciIoWidthUint32,
+                          ExtendedCapPtr,
+                          sizeof(DoeCapability)/sizeof(UINT32),
+                          &DoeCapability
+                          );
+      if (!EFI_ERROR(Status)) {
+        // Check DOE version and capabilities
+        if (DoeCapability.Capability.Bits.InterruptSupport != 0) {
+          DEBUG ((DEBUG_ERROR, "[LocatePcieDoeCapStructure] PCIe DOE Cap structure is located. Offset = 0x%x\n", ExtendedCapPtr));
+          *Offset = ExtendedCapPtr;
+          break;
+        }
+      }
     }
 
     ExtendedCapPtr = (ExtendedCapHeader >> 20) & 0xFFF;

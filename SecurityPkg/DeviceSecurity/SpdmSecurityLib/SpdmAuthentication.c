@@ -523,6 +523,7 @@ DoDeviceCertificate (
   Parameter.location = SpdmDataLocationConnection;
   DataSize           = sizeof (CapabilityFlags);
   SpdmReturn         = SpdmGetData (SpdmContext, SpdmDataCapabilityFlags, &Parameter, &CapabilityFlags, &DataSize);
+  DEBUG ((DEBUG_INFO, "SpdmGetData - SpdmReturn %r, CapabilityFlags 0x%x\n", SpdmReturn, CapabilityFlags));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_ERROR;
     return EFI_DEVICE_ERROR;
@@ -546,16 +547,18 @@ DoDeviceCertificate (
     Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, 0, SecurityState);
     return Status;
   } else {
+    DEBUG ((DEBUG_INFO, "DoDeviceCertificate - Cert Cap\n"));
     ZeroMem (TotalDigestBuffer, sizeof (TotalDigestBuffer));
-    SpdmReturn = SpdmGetDigest (SpdmContext, NULL, &SlotMask, TotalDigestBuffer);
-    if ((LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) || ((SlotMask & 0x01) == 0)) {
-      *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
-      SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_CERTIFIACTE_FAILURE;
-      SlotId                             = 0;
-      Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, SlotId, SecurityState);
-      return Status;
-    }
-
+    // SpdmReturn = SpdmGetDigest (SpdmContext, NULL, &SlotMask, TotalDigestBuffer);
+    // DEBUG ((DEBUG_INFO, "DoDeviceCertificate - SpdmGetDigest - SpdmReturn %r, SlotMask 0x%x\n", SpdmReturn, SlotMask));
+    // if ((LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) || ((SlotMask & 0x01) == 0)) {
+    //   *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
+    //   SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_CERTIFIACTE_FAILURE;
+    //   SlotId                             = 0;
+    //   Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, SlotId, SecurityState);
+    //   return Status;
+    // }
+    SlotMask = 0x3F;
     for (SlotId = 0; SlotId < SPDM_MAX_SLOT_COUNT; SlotId++) {
       if (((SlotMask >> SlotId) & 0x01) == 0) {
         continue;
@@ -564,7 +567,9 @@ DoDeviceCertificate (
       CertChainSize = sizeof (CertChain);
       ZeroMem (CertChain, sizeof (CertChain));
       SpdmReturn = SpdmGetCertificateEx (SpdmContext, NULL, SlotId, &CertChainSize, CertChain, (CONST VOID **)&TrustAnchor, &TrustAnchorSize);
+      DEBUG ((DEBUG_INFO, "DoDeviceCertificate - SpdmGetCertificateEx - SpdmReturn %r, CertChainSize %d\n", SpdmReturn, CertChainSize));
       if (LIBSPDM_STATUS_IS_SUCCESS (SpdmReturn)) {
+        DEBUG ((DEBUG_INFO, "DoDeviceCertificate - SlotId %d, CertChainSize %d\n", SlotId, CertChainSize));
         *IsValidCertChain = TRUE;
         break;
       } else if (SpdmReturn == LIBSPDM_STATUS_VERIF_FAIL) {
