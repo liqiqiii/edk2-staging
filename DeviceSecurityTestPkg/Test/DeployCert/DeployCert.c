@@ -257,7 +257,7 @@ ProvisionNvIndex (
 
   Status = CreateNvIndex (
              TCG_NV_EXTEND_INDEX_FOR_INSTANCE,
-             TPM_ALG_SHA256
+             TPM_ALG_SHA384
              );
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "CreateNvIndex (INSTANCE) Status- %r\n", Status));
@@ -265,13 +265,13 @@ ProvisionNvIndex (
 
   Status = CreateNvIndex (
              TCG_NV_EXTEND_INDEX_FOR_DYNAMIC,
-             TPM_ALG_SHA256
+             TPM_ALG_SHA384
              );
   if (EFI_ERROR (Status)) {
     DEBUG ((DEBUG_ERROR, "CreateNvIndex (DYNAMIC) Status- %r\n", Status));
   }
 
-  DataSize = GetHashSizeFromAlgo (TPM_ALG_SHA256);
+  DataSize = GetHashSizeFromAlgo (TPM_ALG_SHA384);
   Offset   = 0;
 
   AuthHandle = TPM_RH_PLATFORM;

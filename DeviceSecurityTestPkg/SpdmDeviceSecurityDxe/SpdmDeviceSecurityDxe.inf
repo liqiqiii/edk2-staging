@@ -20,6 +20,7 @@
   SpdmDeviceSecurityDxe.c
   SpdmCommunication.c
   SpdmDeviceIo.c
+  SpdmPciDoeStub.c
 
 [Packages]
   MdePkg/MdePkg.dec
@@ -59,7 +60,7 @@
   gSpdmIoProtocolGuid                ## CONSUMES
   gEdkiiDeviceIdentifierTypePciGuid       ## COMSUMES
   gEdkiiDeviceIdentifierTypeUsbGuid       ## COMSUMES
-
+  gEfiPciIoProtocolGuid
 [Pcd]
   gEfiDeviceSecurityPkgTokenSpaceGuid.PcdSpdmBaseAsymAlgo     ## COMSUMES
   gEfiDeviceSecurityPkgTokenSpaceGuid.PcdSpdmBaseHashAlgo     ## COMSUMES

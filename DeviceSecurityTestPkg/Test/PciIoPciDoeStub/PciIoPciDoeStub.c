@@ -225,68 +225,68 @@ PciIoStubConfigRead (
   IN OUT VOID                       *Buffer
   )
 {
-  // UINTN  Size;
+  UINTN  Size;
 
-  // switch (Width) {
-  //   case EfiPciIoWidthUint8:
-  //     Size = sizeof (UINT8);
-  //     break;
-  //   case EfiPciIoWidthUint16:
-  //     Size = sizeof (UINT16);
-  //     break;
-  //   case EfiPciIoWidthUint32:
-  //     Size = sizeof (UINT32);
-  //     break;
-  //   case EfiPciIoWidthUint64:
-  //     Size = sizeof (UINT64);
-  //     break;
-  //   default:
-  //     ASSERT (FALSE);
-  //     return EFI_UNSUPPORTED;
-  // }
+  switch (Width) {
+    case EfiPciIoWidthUint8:
+      Size = sizeof (UINT8);
+      break;
+    case EfiPciIoWidthUint16:
+      Size = sizeof (UINT16);
+      break;
+    case EfiPciIoWidthUint32:
+      Size = sizeof (UINT32);
+      break;
+    case EfiPciIoWidthUint64:
+      Size = sizeof (UINT64);
+      break;
+    default:
+      ASSERT (FALSE);
+      return EFI_UNSUPPORTED;
+  }
 
-  // if (Offset >= 0x1000) {
-  //   ASSERT (FALSE);
-  //   return EFI_UNSUPPORTED;
-  // }
+  if (Offset >= 0x1000) {
+    ASSERT (FALSE);
+    return EFI_UNSUPPORTED;
+  }
 
-  // if (Count >= (0x1000 - Offset)/Size) {
-  //   ASSERT (FALSE);
-  //   return EFI_UNSUPPORTED;
-  // }
+  if (Count >= (0x1000 - Offset)/Size) {
+    ASSERT (FALSE);
+    return EFI_UNSUPPORTED;
+  }
 
-  // if (Offset == SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_READ_DATA_MAILBOX_OFFSET) {
-  //   //
-  //   // Get data from mResponseDataBuffer.
-  //   //
-  //   if (mResponseDataReadIndex + Size * Count > sizeof (mResponseDataBuffer)) {
-  //     return EFI_DEVICE_ERROR;
-  //   }
+  if (Offset == SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_READ_DATA_MAILBOX_OFFSET) {
+    //
+    // Get data from mResponseDataBuffer.
+    //
+    if (mResponseDataReadIndex + Size * Count > sizeof (mResponseDataBuffer)) {
+      return EFI_DEVICE_ERROR;
+    }
 
-  //   CopyMem ((UINT8 *)Buffer, mResponseDataBufferPtr + mResponseDataReadIndex, Size * Count);
-  //   mResponseDataReadIndex += Size * Count;
+    CopyMem ((UINT8 *)Buffer, mResponseDataBufferPtr + mResponseDataReadIndex, Size * Count);
+    mResponseDataReadIndex += Size * Count;
 
-  //   if (mResponseDataReadIndex >= mResponseDataSize) {
-  //     DEBUG ((DEBUG_ERROR, " [PciIoCfg] Read response data is complete!\n"));
+    if (mResponseDataReadIndex >= mResponseDataSize) {
+      DEBUG ((DEBUG_ERROR, " [PciIoCfg] Read response data is complete!\n"));
 
-  //     //
-  //     // Simulate clearing "Data Object Ready" bit.
-  //     //
-  //     DEBUG ((DEBUG_ERROR, " [PciIoCfg] Simulate clearing 'Data Object Ready' bit.\n"));
-  //     *(UINT32 *)(mPciDeviceBuffer + SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_STATUS_OFFSET) = 0;
+      //
+      // Simulate clearing "Data Object Ready" bit.
+      //
+      DEBUG ((DEBUG_ERROR, " [PciIoCfg] Simulate clearing 'Data Object Ready' bit.\n"));
+      *(UINT32 *)(mPciDeviceBuffer + SIMULATED_PCIE_DOE_CAP_OFFSET + PCI_EXPRESS_REG_DOE_STATUS_OFFSET) = 0;
 
-  //     //
-  //     // Reset the points and index.
-  //     //
-  //     ZeroMem (mResponseDataBuffer, sizeof (mResponseDataBuffer));
-  //     mResponseDataReadIndex = 0;
-  //     mResponseDataSize      = 0;
-  //   }
-  // } else {
-  //   CopyMem (Buffer, mPciDeviceBuffer + Offset, Size * Count);
-  // }
+      //
+      // Reset the points and index.
+      //
+      ZeroMem (mResponseDataBuffer, sizeof (mResponseDataBuffer));
+      mResponseDataReadIndex = 0;
+      mResponseDataSize      = 0;
+    }
+  } else {
+    CopyMem (Buffer, mPciDeviceBuffer + Offset, Size * Count);
+  }
 
-  // return EFI_SUCCESS;
+  return EFI_SUCCESS;
   
 }
 

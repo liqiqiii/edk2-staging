@@ -14,6 +14,8 @@ LIST_ENTRY  mSpdmDeviceList = INITIALIZE_LIST_HEAD_VARIABLE (mSpdmDeviceList);
 
 EDKII_DEVICE_SECURITY_POLICY_PROTOCOL  *mDeviceSecurityPolicy;
 
+extern SPDM_PRIVATE_DATA  gSpdmPrivateDataTemplate;
+
 BOOLEAN  mSendReceiveBufferAcquired = FALSE;
 UINT8    mSendReceiveBuffer[SPDM_MAX_SENDER_RECEIVER_BUFFER_SIZE];
 UINTN    mSendReceiveBufferSize;
@@ -566,13 +568,52 @@ DeviceAuthentication (
   IN EDKII_DEVICE_IDENTIFIER         *DeviceId
   )
 {
+  EFI_STATUS           Status;
+  EFI_PCI_IO_PROTOCOL  *PciIo           = NULL;
+  UINT32               DoeCapOffset     = 0;
+  SPDM_PRIVATE_DATA    *SpdmPrivateData = NULL;
+  EDKII_SPDM_DEVICE_INFO        SpdmDeviceInfo;  
+  DEBUG((DEBUG_INFO, "DeviceAuthentication - 0x%g\n", &DeviceId->DeviceType));
+  Status = gBS->HandleProtocol (
+                  DeviceId->DeviceHandle,
+                  &gEdkiiDeviceIdentifierTypePciGuid,
+                  (VOID **)&PciIo
+                  );
+  //
+  // Locate PCIe DOE Capability.
+  //
+  DEBUG((DEBUG_INFO, "Locate - PciIo - %r\n", Status));
+  UINTN Bus, Device, Function, Segment;
+  PciIo->GetLocation(PciIo, &Segment, &Bus, &Device, &Function);
+  DEBUG ((DEBUG_INFO, "PciDevice: Bus: 0x%x, Dev: 0x%x, Func: 0x%x\n", Bus, Device, Function));
+  Status = LocatePcieDoeCapStructure (PciIo, &DoeCapOffset);
+  if (EFI_ERROR (Status)) {
+    return Status;
+  }
+
+  //
+  // Create and initial SPDM_PRIVATE_DATA.
+  //
+  SpdmPrivateData = AllocateCopyPool (sizeof (*SpdmPrivateData), &gSpdmPrivateDataTemplate);
+  ASSERT (SpdmPrivateData != NULL);
+  SpdmPrivateData->DoeCapabilityOffset = DoeCapOffset;
+  SpdmPrivateData->PciIo               = PciIo;
+  DEBUG((DEBUG_ERROR, "[SpdmPciDoeStub] SpdmPrivateData->PciIo - %p\n", SpdmPrivateData->PciIo));
+  // Handle = NULL;
+  Status = gBS->InstallProtocolInterface (
+                  &DeviceId->DeviceHandle,
+                  &gSpdmIoProtocolGuid,
+                  EFI_NATIVE_INTERFACE,
+                  &SpdmPrivateData->SpdmIo
+                  );
+  DEBUG ((DEBUG_ERROR, "[SpdmPciDoeStub] InstallProtocolInterface (Spdm) - %r\n", Status));
+
+
   EDKII_DEVICE_SECURITY_POLICY  DeviceSecurityPolicy;
   EDKII_DEVICE_SECURITY_STATE   DeviceSecurityState;
 #if (LIBSPDM_ENABLE_CAPABILITY_KEY_EX_CAP) || (LIBSPDM_ENABLE_CAPABILITY_PSK_EX_CAP)
   SPDM_DRIVER_DEVICE_CONTEXT    *SpdmDriverContext;
 #endif
-  EFI_STATUS                    Status;
-  EDKII_SPDM_DEVICE_INFO        SpdmDeviceInfo;
 
   if (mDeviceSecurityPolicy == NULL) {
     return EFI_SUCCESS;

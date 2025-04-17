@@ -265,11 +265,11 @@ DEFINE CRYPT_LIB = OPENSSL
   }
 
 
-  DeviceSecurityTestPkg/Test/PciIoPciDoeStub/PciIoPciDoeStub.inf {
-  <LibraryClasses>
-    SpdmDeviceSecretLib|DeviceSecurityTestPkg/Test/SpdmDeviceSecretLibTestStub/SpdmDeviceSecretLibTestStub.inf
-  }
-  DeviceSecurityTestPkg/Test/SpdmPciDoeStub/SpdmPciDoeStub.inf
+  # DeviceSecurityTestPkg/Test/PciIoPciDoeStub/PciIoPciDoeStub.inf {
+  # <LibraryClasses>
+  #   SpdmDeviceSecretLib|DeviceSecurityTestPkg/Test/SpdmDeviceSecretLibTestStub/SpdmDeviceSecretLibTestStub.inf
+  # }
+  # DeviceSecurityTestPkg/Test/SpdmPciDoeStub/SpdmPciDoeStub.inf
 
   #DeviceSecurityTestPkg/SpdmDeviceSecurityPei/SpdmDeviceSecurityPei.inf
   #DeviceSecurityTestPkg/TestPei/DeviceSecurityPolicyStubPei/DeviceSecurityPolicyStubPei.inf

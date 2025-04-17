@@ -388,13 +388,10 @@ CreateSpdmDeviceContext (
   }
 
   if (SpdmDeviceInfo->BaseAsymAlgo != 0) {
+    DEBUG((DEBUG_INFO, "BaseAsymAlgo: 0x%x\n", SpdmDeviceInfo->BaseAsymAlgo));
     Data32 = SpdmDeviceInfo->BaseAsymAlgo;
   } else {
-    Data32 = SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_RSASSA_2048 |
-             SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_RSASSA_3072 |
-             SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_RSASSA_4096 |
-             SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P256 |
-             SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P384 |
+    Data32 = SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P384 |
              SPDM_ALGORITHMS_BASE_ASYM_ALGO_TPM_ALG_ECDSA_ECC_NIST_P521;
   }
 
@@ -406,10 +403,12 @@ CreateSpdmDeviceContext (
 
   if (SpdmDeviceInfo->BaseHashAlgo != 0) {
     Data32 = SpdmDeviceInfo->BaseHashAlgo;
+    DEBUG((DEBUG_INFO, "BaseHashAlgo: 0x%x\n", Data32));
   } else {
     Data32 = SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA_256 |
              SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA_384 |
              SPDM_ALGORITHMS_BASE_HASH_ALGO_TPM_ALG_SHA_512;
+    DEBUG((DEBUG_INFO, "BaseHashAlgo else: 0x%x\n", Data32));
   }
 
   SpdmReturn = SpdmSetData (SpdmContext, SpdmDataBaseHashAlgo, &Parameter, &Data32, sizeof (Data32));
@@ -418,6 +417,14 @@ CreateSpdmDeviceContext (
     goto Error;
   }
 
+  Data32 = SPDM_ALGORITHMS_MEASUREMENT_HASH_ALGO_TPM_ALG_SHA_384;
+
+  SpdmReturn = SpdmSetData (SpdmContext, SpdmDataMeasurementHashAlgo, &Parameter, &Data32, sizeof (Data32));
+  if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
+    DEBUG((DEBUG_ERROR, "SpdmSetData measurealgo - %p\n", SpdmReturn));
+    ASSERT (FALSE);
+    goto Error;
+  }
   SpdmReturn = SpdmInitConnection (SpdmContext, FALSE);
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     DEBUG ((DEBUG_ERROR, "SpdmInitConnection - %p\n", SpdmReturn));
@@ -436,6 +443,7 @@ CreateSpdmDeviceContext (
   Parameter.location = SpdmDataLocationConnection;
   DataSize           = sizeof (Data16);
   SpdmReturn         = SpdmGetData (SpdmContext, SpdmDataSpdmVersion, &Parameter, &Data16, &DataSize);
+  DEBUG((DEBUG_INFO, "SpdmGetData - Version - Data16 = 0x%x\n", Data16));
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     DEBUG ((DEBUG_ERROR, "SpdmGetData - %p\n", SpdmReturn));
     goto Error;

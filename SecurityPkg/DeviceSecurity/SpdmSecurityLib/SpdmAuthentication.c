@@ -549,16 +549,16 @@ DoDeviceCertificate (
   } else {
     DEBUG ((DEBUG_INFO, "DoDeviceCertificate - Cert Cap\n"));
     ZeroMem (TotalDigestBuffer, sizeof (TotalDigestBuffer));
-    // SpdmReturn = SpdmGetDigest (SpdmContext, NULL, &SlotMask, TotalDigestBuffer);
-    // DEBUG ((DEBUG_INFO, "DoDeviceCertificate - SpdmGetDigest - SpdmReturn %r, SlotMask 0x%x\n", SpdmReturn, SlotMask));
-    // if ((LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) || ((SlotMask & 0x01) == 0)) {
-    //   *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
-    //   SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_CERTIFIACTE_FAILURE;
-    //   SlotId                             = 0;
-    //   Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, SlotId, SecurityState);
-    //   return Status;
-    // }
-    SlotMask = 0x3F;
+    SpdmReturn = SpdmGetDigest (SpdmContext, NULL, &SlotMask, TotalDigestBuffer);
+    DEBUG ((DEBUG_INFO, "DoDeviceCertificate - SpdmGetDigest - SpdmReturn %r, SlotMask 0x%x\n", SpdmReturn, SlotMask));
+    if ((LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) || ((SlotMask & 0x01) == 0)) {
+      *AuthState                         = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
+      SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_ERROR_CERTIFIACTE_FAILURE;
+      SlotId                             = 0;
+      Status                             = ExtendCertificate (SpdmDeviceContext, *AuthState, 0, NULL, NULL, 0, SlotId, SecurityState);
+      return Status;
+    }
+    // SlotMask = 0x3F;
     for (SlotId = 0; SlotId < SPDM_MAX_SLOT_COUNT; SlotId++) {
       if (((SlotMask >> SlotId) & 0x01) == 0) {
         continue;
