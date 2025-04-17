@@ -417,6 +417,14 @@ CreateSpdmDeviceContext (
     goto Error;
   }
 
+  Data8 = SPDM_ALGORITHMS_OPAQUE_DATA_FORMAT_1;
+  SpdmSetData (SpdmContext, SpdmDataOtherParamsSupport, &Parameter, &Data8, sizeof (Data8));
+  if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
+    DEBUG((DEBUG_ERROR, "SpdmSetData paramssupport - %p\n", SpdmReturn));
+    ASSERT (FALSE);
+    goto Error;
+  }
+
   Data32 = SPDM_ALGORITHMS_MEASUREMENT_HASH_ALGO_TPM_ALG_SHA_384;
 
   SpdmReturn = SpdmSetData (SpdmContext, SpdmDataMeasurementHashAlgo, &Parameter, &Data32, sizeof (Data32));
