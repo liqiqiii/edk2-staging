@@ -536,6 +536,7 @@ DoDeviceMeasurement (
   SpdmGetData (SpdmContext, SpdmDataCapabilityFlags, &Parameter, &CapabilityFlags, &DataSize);
 
   if ((CapabilityFlags & SPDM_GET_CAPABILITIES_RESPONSE_FLAGS_MEAS_CAP_SIG) == 0) {
+    DEBUG((DEBUG_INFO, "DoDeviceMeasurement...1\n"));
     AuthState                       = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_NO_SIG;
     Status                          = ExtendCertificate (SpdmDeviceContext, AuthState, 0, NULL, NULL, 0, 0, SecurityState);
     SecurityState->MeasurementState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_NO_CAPABILITIES;
@@ -545,7 +546,7 @@ DoDeviceMeasurement (
       return EFI_UNSUPPORTED;
     }
   }
-
+  DEBUG((DEBUG_INFO, "DoDeviceMeasurement...2\n"));
   RequestAttribute  = 0;
   RequestAttribute |= SPDM_GET_MEASUREMENTS_REQUEST_ATTRIBUTES_GENERATE_SIGNATURE;
 
@@ -572,7 +573,9 @@ DoDeviceMeasurement (
                  NULL,
                  0
                  );
+    DEBUG((DEBUG_INFO, "SpdmReturn - 0x%x\n", SpdmReturn));
   if (LIBSPDM_STATUS_IS_SUCCESS (SpdmReturn)) {
+    DEBUG((DEBUG_INFO, "DoDeviceMeasurement...3\n"));
     DEBUG ((DEBUG_INFO, "NumberOfBlocks %d\n", NumberOfBlocks));
 
     MeasurementBlock = (VOID *)MeasurementRecord;
@@ -586,11 +589,13 @@ DoDeviceMeasurement (
       AuthState                       = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_SUCCESS;
       SecurityState->MeasurementState = EDKII_DEVICE_SECURITY_STATE_SUCCESS;
       if (Index == NumberOfBlocks - 1) {
+        DEBUG((DEBUG_INFO, "DoDeviceMeasurement...4\n"));
         Status = ExtendMeasurement (SpdmDeviceContext, AuthState, MeasurementsBlockSize, (UINT8 *)MeasurementBlock, RequesterNonce, ResponderNonce, SecurityState);
       } else {
+        DEBUG((DEBUG_INFO, "DoDeviceMeasurement...5\n"));
         Status = ExtendMeasurement (SpdmDeviceContext, AuthState, MeasurementsBlockSize, (UINT8 *)MeasurementBlock, NULL, NULL, SecurityState);
       }
-
+      DEBUG((DEBUG_INFO, "DoDeviceMeasurement...6\n"));
       MeasurementBlock = (VOID *)((size_t)MeasurementBlock + MeasurementsBlockSize);
       if (Status != EFI_SUCCESS) {
         return Status;
@@ -622,7 +627,9 @@ ContentChangedFlag:
                    NULL,
                    NULL
                    );
+    DEBUG((DEBUG_INFO, "DoDeviceMeasurement...7\n"));
     if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
+      DEBUG((DEBUG_INFO, "DoDeviceMeasurement...8\n"));
       SecurityState->MeasurementState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_ERROR;
       return EFI_DEVICE_ERROR;
     }
@@ -664,6 +671,7 @@ ContentChangedFlag:
                      0
                      );
       if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
+        DEBUG((DEBUG_INFO, "DoDeviceMeasurement...9\n"));
         if (SpdmReturn == LIBSPDM_STATUS_VERIF_FAIL) {
           AuthState                       = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_FAIL_INVALID;
           SecurityState->MeasurementState = EDKII_DEVICE_SECURITY_STATE_ERROR_DEVICE_ERROR;
@@ -677,6 +685,7 @@ ContentChangedFlag:
       if ((ReceivedNumberOfBlock == NumberOfBlocks - 1) &&
           (ContentChanged == SPDM_MEASUREMENTS_RESPONSE_CONTENT_CHANGE_DETECTED))
       {
+        DEBUG((DEBUG_INFO, "DoDeviceMeasurement...10\n"));
         if (ContentChangedCount == 0) {
           ContentChangedCount++;
           goto ContentChangedFlag;
@@ -703,12 +712,13 @@ ContentChangedFlag:
 
       ReceivedNumberOfBlock += 1;
     }
-
+    DEBUG((DEBUG_INFO, "DoDeviceMeasurement...11\n"));
     if (ReceivedNumberOfBlock != NumberOfBlocks) {
+      DEBUG((DEBUG_INFO, "DoDeviceMeasurement...12\n"));
       SecurityState->MeasurementState = EDKII_DEVICE_SECURITY_STATE_ERROR_MEASUREMENT_AUTH_FAILURE;
       return EFI_DEVICE_ERROR;
     }
   }
-
+  DEBUG((DEBUG_INFO, "DoDeviceMeasurement...13\n"));
   return EFI_SUCCESS;
 }

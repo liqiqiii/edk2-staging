@@ -685,6 +685,7 @@ libspdm_x509_get_extended_key_usage (
   size_t         *usage_size
   )
 {
+  DEBUG((DEBUG_INFO, "libspdm_x509_get_extended_key_usage in wrapper\n"));
   return X509GetExtendedKeyUsage (cert, cert_size, usage, usage_size);
 }
 

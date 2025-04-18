@@ -46,7 +46,7 @@ IsDeviceAuthBootEnabled (
   //   FreePool (DeviceAuthBootMode);
   //   return TRUE;
   // }
-  return EFI_SUCCESS;
+  return TRUE;
 }
 
 /**
@@ -105,8 +105,9 @@ SpdmDeviceAuthenticationAndMeasurement (
       goto Ret;
     }
   }
-
+  DEBUG((DEBUG_INFO, "Authenticationpolicy %d", SecurityPolicy->AuthenticationPolicy));
   if (((SecurityPolicy->AuthenticationPolicy & EDKII_DEVICE_AUTHENTICATION_REQUIRED) != 0) && (IsDeviceAuthBootEnabled ())) {
+    DEBUG((DEBUG_INFO, "DeviceAuthentication - Started %d\n", SlotId));
     Status = DoDeviceAuthentication (SpdmDeviceContext, &AuthState, SlotId, IsValidCertChain, RootCertMatch, SecurityState);
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "DoDeviceAuthentication failed - %r\n", Status));
@@ -117,8 +118,9 @@ SpdmDeviceAuthenticationAndMeasurement (
       goto Ret;
     }
   }
-
+  DEBUG((DEBUG_INFO, "Measurementpolicy %d", SecurityPolicy->MeasurementPolicy));
   if ((SecurityPolicy->MeasurementPolicy & EDKII_DEVICE_MEASUREMENT_REQUIRED) != 0) {
+    DEBUG((DEBUG_INFO, "DeviceMeasurement - Started %d\n", SlotId));
     Status = DoDeviceMeasurement (SpdmDeviceContext, SlotId, SecurityState);
     if (EFI_ERROR (Status)) {
       DEBUG ((DEBUG_ERROR, "DoDeviceMeasurement failed - %r\n", Status));

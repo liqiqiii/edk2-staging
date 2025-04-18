@@ -1296,17 +1296,21 @@ X509GetExtensionData (
   // Check input parameters.
   //
   if ((Cert == NULL) || (CertSize == 0) || (Oid == NULL) || (OidSize == 0) || (ExtensionDataSize == NULL)) {
+    DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data null\n"));
     return FALSE;
   }
 
   X509Cert = NULL;
   Status   = FALSE;
-
+  DEBUG ((DEBUG_INFO, "X509GetExtensionData: OidSize = %d\n", OidSize));
+  DEBUG ((DEBUG_INFO, "X509GetExtensionData: CertSize = %d\n", CertSize));
   //
   // Read DER-encoded X509 Certificate and Construct X509 object.
   //
   Status = X509ConstructCertificate (Cert, CertSize, (UINT8 **)&X509Cert);
+  DEBUG((DEBUG_INFO, "Status = %d\n", Status));
   if ((X509Cert == NULL) || (!Status)) {
+    DEBUG((DEBUG_INFO, "hit cert null\n", Status));
     *ExtensionDataSize = 0;
     goto Cleanup;
   }
@@ -1315,7 +1319,9 @@ X509GetExtensionData (
   // Retrieve Extensions from certificate object.
   //
   Extensions = X509_get0_extensions (X509Cert);
+  
   if (sk_X509_EXTENSION_num (Extensions) <= 0) {
+    DEBUG((DEBUG_INFO, "sk_X509_EXTENSION_num cleanup\n", Status));
     *ExtensionDataSize = 0;
     goto Cleanup;
   }
@@ -1327,18 +1333,23 @@ X509GetExtensionData (
   Asn1Oct   = NULL;
   OctLength = 0;
   for (i = 0; i < sk_X509_EXTENSION_num (Extensions); i++) {
+    DEBUG((DEBUG_INFO, "sk_X509_EXTENSION_num value %d\n", i));
     Ext = sk_X509_EXTENSION_value (Extensions, (int)i);
     if (Ext == NULL) {
       continue;
     }
 
     Asn1Obj = X509_EXTENSION_get_object (Ext);
+    DEBUG((DEBUG_INFO, "X509_EXTENSION_get_object %d\n", Asn1Obj));
     if (Asn1Obj == NULL) {
+      DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 1.2\n"));
       continue;
     }
 
     Asn1Oct = X509_EXTENSION_get_data (Ext);
+    DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data %d\n", Asn1Oct));
     if (Asn1Oct == NULL) {
+      DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 1.5\n"));
       continue;
     }
 
@@ -1349,9 +1360,10 @@ X509GetExtensionData (
       // Extension Found
       //
       Status = TRUE;
+      DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 2\n"));
       break;
     }
-
+    DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data %d\n", Asn1Oct));
     //
     // reset to 0 if not found
     //
@@ -1359,21 +1371,26 @@ X509GetExtensionData (
   }
 
   if (Status) {
+    DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 3\n"));
     if (*ExtensionDataSize < OctLength) {
+      DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 4\n"));
       *ExtensionDataSize = OctLength;
       Status             = FALSE;
       goto Cleanup;
     }
 
     if (Asn1Oct != NULL) {
+      DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 5\n"));
       CopyMem (ExtensionData, ASN1_STRING_get0_data (Asn1Oct), OctLength);
     }
-
+    DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 6\n"));
     *ExtensionDataSize = OctLength;
   } else {
+    DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 7\n"));
     *ExtensionDataSize = 0;
+    Status = TRUE;
   }
-
+  DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data 8\n"));
 Cleanup:
   //
   // Release Resources.
@@ -1381,7 +1398,7 @@ Cleanup:
   if (X509Cert != NULL) {
     X509_free (X509Cert);
   }
-
+  DEBUG((DEBUG_INFO, "X509_EXTENSION_get_data status = %d\n", Status));
   return Status;
 }
 

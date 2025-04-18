@@ -188,6 +188,7 @@ CreateSpdmDeviceContext (
   UINT8                Data8;
   UINT16               Data16;
   UINT32               Data32;
+  BOOLEAN              IsRequester;
   UINT8                AuthState;
 
   SpdmDeviceContext = AllocateZeroPool (sizeof (*SpdmDeviceContext));
@@ -340,6 +341,7 @@ CreateSpdmDeviceContext (
         ZeroMem (&Parameter, sizeof (Parameter));
         Parameter.location = SpdmDataLocationLocal;
         SpdmReturn         = SpdmSetData (SpdmContext, SpdmDataPeerPublicRootCert, &Parameter, Data, DataSize);
+        DEBUG((DEBUG_INFO, "SpdmSetData root cert - SpdmReturn %r, DataSize 0x%x\n", SpdmReturn, DataSize));
         if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
           if (SpdmReturn == LIBSPDM_STATUS_BUFFER_FULL) {
             Status = RecordConnectionFailureStatus (
@@ -422,6 +424,13 @@ CreateSpdmDeviceContext (
   if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     DEBUG((DEBUG_ERROR, "SpdmSetData paramssupport - %p\n", SpdmReturn));
     ASSERT (FALSE);
+    goto Error;
+  }
+
+
+  IsRequester = TRUE;
+  SpdmReturn = SpdmSetData (SpdmContext, SpdmDataIsRequester, &Parameter, &IsRequester, sizeof (IsRequester));
+  if (LIBSPDM_STATUS_IS_ERROR (SpdmReturn)) {
     goto Error;
   }
 

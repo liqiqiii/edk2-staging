@@ -16,6 +16,7 @@
   Include
   ../SecurityPkg/DeviceSecurity/SpdmLib/Include
   ../SecurityPkg/DeviceSecurity/SpdmLib/libspdm/include
+  # ../SecurityPkg/DeviceSecurity/SpdmLib/libspdm/include/hal/library
 
 [Includes.Common.Private]
   #Library/SpdmLib/Include

@@ -570,6 +570,8 @@ DoDeviceCertificate (
       DEBUG ((DEBUG_INFO, "DoDeviceCertificate - SpdmGetCertificateEx - SpdmReturn %r, CertChainSize %d\n", SpdmReturn, CertChainSize));
       if (LIBSPDM_STATUS_IS_SUCCESS (SpdmReturn)) {
         DEBUG ((DEBUG_INFO, "DoDeviceCertificate - SlotId %d, CertChainSize %d\n", SlotId, CertChainSize));
+        SecurityState->AuthenticationState = EDKII_DEVICE_SECURITY_STATE_SUCCESS;
+        *AuthState = TCG_DEVICE_SECURITY_EVENT_DATA_DEVICE_AUTH_STATE_SUCCESS;
         *IsValidCertChain = TRUE;
         break;
       } else if (SpdmReturn == LIBSPDM_STATUS_VERIF_FAIL) {
